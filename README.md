@@ -1,2 +1,2 @@
 # Zefender
-Zefender wending machine ad 
+Zefender vending machine ad 
