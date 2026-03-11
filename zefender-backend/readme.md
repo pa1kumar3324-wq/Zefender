@@ -1,0 +1,1 @@
+The ad features to admin like upload, delete, compare based of versions, store it to local, priority is done here.
