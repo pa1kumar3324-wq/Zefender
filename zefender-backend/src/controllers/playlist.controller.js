@@ -86,23 +86,15 @@ const getPlaylistByDevice = async (req, res) => {
 // Admin sets priority order for post-transaction ads
 // priority 1 plays first, 2 plays second, and so on
 // Unselected ads stay at priority 0 (normal loop)
-const setPriority = async (req, res) => {
+const setPriority = async (req, res) => {  // ← async is here!
   try {
     const { device_id, priority_ads } = req.body;
-    // priority_ads = [{ ad_id, priority }]
 
     const playlist = await Playlist.findOne({ where: { device_id } });
     if (!playlist) {
       return res.status(404).json({ message: "No playlist found for this device" });
     }
 
-    // Reset all priorities to 0 first
-    await PlaylistItem.update(
-      { priority: 0 },
-      { where: { playlist_id: playlist.id } }
-    );
-
-    // Set new priorities
     for (const item of priority_ads) {
       await PlaylistItem.update(
         { priority: item.priority },
@@ -115,15 +107,16 @@ const setPriority = async (req, res) => {
       );
     }
 
-    // Increment version since playlist changed
     await playlist.update({ version: playlist.version + 1 });
 
-    res.json({ message: "Priority updated successfully", version: playlist.version });
+    res.json({ 
+      message: "Priority updated successfully", 
+      version: playlist.version 
+    });
   } catch (err) {
     res.status(500).json({ message: "Server error", error: err.message });
   }
 };
-
 // DELETE /api/playlists/priority
 // Admin clears all priorities — all ads go back to normal loop (priority 0)
 const clearPriority = async (req, res) => {
