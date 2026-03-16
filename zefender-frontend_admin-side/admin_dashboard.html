@@ -1,0 +1,1236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AdKiosk — Control Center</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Barlow:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0b0b0f;--bg2:#111118;--bg3:#17171f;--bg4:#1e1e28;--bg5:#252532;--bg6:#2e2e3e;
+  --border:#242430;--border2:#313145;--border3:#424258;
+  --text:#eeeef5;--text2:#8888a8;--text3:#42425a;
+  --accent:#e8c547;--accent2:#c4a230;--accentbg:rgba(232,197,71,0.08);
+  --red:#e05060;--redbg:rgba(224,80,96,0.1);
+  --green:#3ecf8e;--greenbg:rgba(62,207,142,0.1);
+  --blue:#5b8dee;--bluebg:rgba(91,141,238,0.1);
+  --orange:#f0904a;
+  --mono:'IBM Plex Mono',monospace;
+  --sans:'Barlow',sans-serif;
+}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--sans);overflow:hidden}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.35}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+@keyframes slideIn{from{opacity:0;transform:scale(.97)}to{opacity:1;transform:scale(1)}}
+
+/* ── Shell ── */
+.shell{display:flex;flex-direction:column;height:100vh}
+
+/* ── Header ── */
+header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 24px;height:56px;border-bottom:1px solid var(--border);
+  background:var(--bg2);flex-shrink:0;gap:16px
+}
+.logo{display:flex;align-items:center;gap:10px;flex-shrink:0}
+.logo-mark{width:30px;height:30px;background:var(--accent);border-radius:6px;display:flex;align-items:center;justify-content:center}
+.logo-mark svg{width:16px;height:16px;fill:#0b0b0f}
+.logo-name{font-size:15px;font-weight:900;letter-spacing:.08em}
+.logo-tag{font-size:9px;color:var(--text3);font-family:var(--mono);letter-spacing:.18em;margin-top:1px}
+.header-mid{flex:1;display:flex;align-items:center;justify-content:center;gap:8px}
+.stat-pill{
+  display:flex;align-items:center;gap:6px;padding:4px 12px;
+  background:var(--bg4);border:1px solid var(--border2);border-radius:20px;
+  font-family:var(--mono);font-size:11px;color:var(--text2)
+}
+.stat-pill .dot{width:6px;height:6px;border-radius:50%}
+.dot-green{background:var(--green);box-shadow:0 0 5px var(--green)}
+.dot-red{background:var(--red)}
+.dot-yellow{background:var(--accent);animation:blink 2s infinite}
+.header-right{display:flex;align-items:center;gap:8px;flex-shrink:0}
+
+/* ── Buttons ── */
+.btn{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:7px 14px;border-radius:7px;font-size:12px;font-weight:700;
+  cursor:pointer;transition:all .15s;font-family:var(--mono);letter-spacing:.04em;
+  border:1px solid transparent;white-space:nowrap
+}
+.btn svg{width:13px;height:13px;fill:currentColor;flex-shrink:0}
+.btn-primary{background:var(--accent);color:#0b0b0f;border-color:var(--accent)}
+.btn-primary:hover{background:var(--accent2);border-color:var(--accent2)}
+.btn-ghost{background:var(--bg4);color:var(--text2);border-color:var(--border2)}
+.btn-ghost:hover{border-color:var(--accent);color:var(--accent)}
+.btn-danger{background:none;color:var(--red);border-color:rgba(224,80,96,.3)}
+.btn-danger:hover{background:var(--redbg);border-color:var(--red)}
+.btn-blue{background:var(--bluebg);color:var(--blue);border-color:rgba(91,141,238,.3)}
+.btn-blue:hover{background:rgba(91,141,238,.18);border-color:var(--blue)}
+.btn-sm{padding:5px 10px;font-size:11px}
+.btn-icon{width:30px;height:30px;padding:0;justify-content:center;border-radius:6px}
+
+/* ── Body: sidebar + detail ── */
+.body{display:flex;flex:1;overflow:hidden}
+
+/* ── Sidebar ── */
+.sidebar{width:280px;flex-shrink:0;border-right:1px solid var(--border);display:flex;flex-direction:column;background:var(--bg2)}
+.sidebar-head{padding:12px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px}
+.sidebar-title{font-size:10px;font-weight:700;letter-spacing:.16em;color:var(--text3);font-family:var(--mono);text-transform:uppercase;flex:1}
+.btn-refresh{background:none;border:1px solid var(--border2);color:var(--text3);width:26px;height:26px;border-radius:6px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.btn-refresh:hover{border-color:var(--accent);color:var(--accent)}
+.btn-refresh svg{width:12px;height:12px;fill:currentColor}
+.btn-refresh.spinning svg{animation:spin .6s linear infinite}
+
+/* Search */
+.sidebar-search{padding:10px 14px;border-bottom:1px solid var(--border)}
+.search-wrap{position:relative}
+.search-wrap svg{position:absolute;left:9px;top:50%;transform:translateY(-50%);width:12px;height:12px;fill:var(--text3);pointer-events:none}
+.search-input{width:100%;background:var(--bg4);border:1px solid var(--border2);color:var(--text);font-family:var(--mono);font-size:11px;padding:6px 10px 6px 28px;border-radius:6px;outline:none;transition:border-color .15s}
+.search-input:focus{border-color:var(--accent)}
+.search-input::placeholder{color:var(--text3)}
+
+.device-list{flex:1;overflow-y:auto;padding:8px}
+.device-list::-webkit-scrollbar{width:3px}
+.device-list::-webkit-scrollbar-thumb{background:var(--bg5);border-radius:2px}
+
+/* Device card */
+.device-card{
+  padding:11px 12px;border-radius:8px;border:1px solid var(--border);
+  background:var(--bg3);margin-bottom:5px;cursor:pointer;
+  transition:all .15s;animation:fadeIn .2s ease
+}
+.device-card:hover{border-color:var(--border2);background:var(--bg4)}
+.device-card.active{border-color:var(--accent);background:var(--accentbg)}
+.device-card.offline{opacity:.5}
+.dc-top{display:flex;align-items:center;gap:8px;margin-bottom:4px}
+.dc-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.dc-dot.online{background:var(--green);box-shadow:0 0 5px var(--green)}
+.dc-dot.offline{background:var(--text3)}
+.dc-dot.checking{background:var(--accent);animation:blink .8s infinite}
+.dc-name{font-size:13px;font-weight:700;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dc-menu-btn{background:none;border:none;color:var(--text3);cursor:pointer;padding:2px 5px;border-radius:4px;font-size:15px;line-height:1;transition:color .15s;flex-shrink:0}
+.dc-menu-btn:hover{color:var(--text)}
+.dc-meta{font-family:var(--mono);font-size:10px;color:var(--text3);display:flex;gap:8px;align-items:center}
+.dc-location{color:var(--text2);display:flex;align-items:center;gap:3px}
+.dc-ad-count{margin-left:auto;background:var(--bg5);padding:1px 6px;border-radius:4px;font-size:9px}
+.btn-add-device{
+  width:100%;display:flex;align-items:center;justify-content:center;gap:7px;
+  padding:11px;border-radius:8px;border:1.5px dashed var(--accent2);
+  background:var(--accentbg);color:var(--accent);font-family:var(--mono);font-size:12px;font-weight:700;
+  letter-spacing:.08em;cursor:pointer;transition:all .2s;margin-top:6px;
+  box-shadow:0 0 10px rgba(232,197,71,0.08)
+}
+.btn-add-device:hover{
+  background:rgba(232,197,71,0.16);border-color:var(--accent);
+  box-shadow:0 0 16px rgba(232,197,71,0.18);transform:translateY(-1px)
+}
+
+.no-devices{padding:36px 16px;text-align:center;color:var(--text3);font-size:12px;line-height:1.8}
+.no-devices-icon{font-size:26px;margin-bottom:8px;opacity:.35}
+
+/* ── Detail panel ── */
+.detail{flex:1;display:flex;flex-direction:column;overflow:hidden}
+
+.detail-header{
+  padding:14px 24px;border-bottom:1px solid var(--border);
+  background:var(--bg2);flex-shrink:0;
+  display:flex;align-items:center;gap:16px
+}
+.detail-title-wrap{flex:1;min-width:0}
+.detail-title{font-size:18px;font-weight:900;letter-spacing:.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.detail-sub{font-size:10px;color:var(--text3);font-family:var(--mono);margin-top:2px;display:flex;gap:10px;align-items:center}
+.detail-sub span{display:flex;align-items:center;gap:4px}
+.detail-actions{display:flex;gap:6px;flex-shrink:0}
+
+/* Tabs */
+.tabs{display:flex;border-bottom:1px solid var(--border);background:var(--bg2);padding:0 24px;flex-shrink:0}
+.tab{padding:10px 16px;font-size:12px;font-weight:700;color:var(--text3);cursor:pointer;border-bottom:2px solid transparent;transition:all .15s;letter-spacing:.04em;font-family:var(--mono)}
+.tab:hover{color:var(--text2)}
+.tab.active{color:var(--accent);border-bottom-color:var(--accent)}
+
+.tab-body{flex:1;overflow-y:auto;padding:22px 24px}
+.tab-body::-webkit-scrollbar{width:3px}
+.tab-body::-webkit-scrollbar-thumb{background:var(--bg5);border-radius:2px}
+.tab-pane{display:none;animation:fadeIn .2s ease}
+.tab-pane.active{display:block}
+
+/* ── Section label ── */
+.slabel{font-size:10px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--text3);font-family:var(--mono);margin-bottom:10px;display:flex;align-items:center;justify-content:space-between}
+
+/* ── Upload ── */
+.upload-zone{border:2px dashed var(--border2);border-radius:10px;padding:26px 20px;text-align:center;cursor:pointer;background:var(--bg2);transition:all .2s;margin-bottom:20px}
+.upload-zone:hover,.upload-zone.drag{border-color:var(--accent);background:var(--accentbg)}
+.upload-zone p{font-size:12px;color:var(--text3);margin-bottom:10px}
+input[type=file]{display:none}
+.upload-prog{display:none;margin-bottom:18px}
+.upload-prog.show{display:block}
+.prog-label{font-size:10px;color:var(--text2);font-family:var(--mono);margin-bottom:5px}
+.prog-track{height:4px;background:var(--bg5);border-radius:2px}
+.prog-fill{height:100%;background:var(--accent);border-radius:2px;transition:width .2s;width:0}
+
+/* ── Ad list ── */
+.ad-list{display:flex;flex-direction:column;gap:6px}
+.ad-item{
+  display:flex;align-items:center;gap:11px;
+  background:var(--bg2);border:1px solid var(--border);
+  border-radius:8px;padding:10px 12px;transition:all .15s;
+  user-select:none;animation:fadeIn .15s ease
+}
+.ad-item:hover{border-color:var(--border2)}
+.ad-item.dragging{opacity:.35;border-style:dashed}
+.ad-item.drag-over{border-color:var(--accent);background:var(--accentbg)}
+.ad-item.selected{border-color:var(--blue);background:var(--bluebg)}
+.ad-handle{color:var(--text3);cursor:grab;display:flex;align-items:center;flex-shrink:0}
+.ad-handle:active{cursor:grabbing}
+.ad-handle svg{width:13px;height:13px;fill:currentColor}
+.ad-check{width:16px;height:16px;border-radius:4px;border:1.5px solid var(--border3);background:var(--bg4);cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.ad-check.checked{background:var(--blue);border-color:var(--blue)}
+.ad-check svg{width:10px;height:10px;fill:#fff;display:none}
+.ad-check.checked svg{display:block}
+.ad-index{font-family:var(--mono);font-size:10px;color:var(--text3);width:20px;text-align:right;flex-shrink:0}
+.ad-playing-dot{width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 4px var(--green);animation:blink 2s infinite;flex-shrink:0}
+.ad-info{flex:1;min-width:0}
+.ad-name{font-size:12px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ad-meta{font-family:var(--mono);font-size:10px;color:var(--text3);margin-top:2px}
+.ad-badge{font-family:var(--mono);font-size:9px;padding:2px 7px;border-radius:4px;background:var(--greenbg);color:var(--green);flex-shrink:0}
+.ad-reorder{display:flex;flex-direction:column;gap:2px;flex-shrink:0}
+.reorder-btn{background:var(--bg4);border:1px solid var(--border2);color:var(--text2);width:22px;height:18px;border-radius:3px;cursor:pointer;font-size:8px;display:flex;align-items:center;justify-content:center;transition:all .12s}
+.reorder-btn:hover:not([disabled]){border-color:var(--accent);color:var(--accent)}
+.reorder-btn[disabled]{opacity:.2;cursor:default}
+.btn-del-sm{background:none;border:1px solid transparent;color:var(--text3);width:26px;height:26px;border-radius:5px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;flex-shrink:0}
+.btn-del-sm:hover{border-color:var(--red);color:var(--red);background:var(--redbg)}
+.btn-del-sm svg{width:12px;height:12px;fill:currentColor}
+
+/* Bulk action bar */
+.bulk-bar{
+  display:none;align-items:center;gap:8px;
+  padding:10px 14px;background:var(--bluebg);border:1px solid rgba(91,141,238,.3);
+  border-radius:8px;margin-bottom:14px;animation:fadeIn .2s ease
+}
+.bulk-bar.show{display:flex}
+.bulk-bar-label{font-family:var(--mono);font-size:11px;color:var(--blue);flex:1}
+
+/* ── Info tab ── */
+.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px}
+.info-card{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:14px}
+.info-card-label{font-family:var(--mono);font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--text3);margin-bottom:6px}
+.info-card-val{font-size:20px;font-weight:800}
+.info-card-sub{font-size:11px;color:var(--text2);margin-top:3px}
+.info-field{margin-bottom:14px}
+.info-field label{display:block;font-family:var(--mono);font-size:10px;color:var(--text3);margin-bottom:5px;letter-spacing:.1em;text-transform:uppercase}
+.info-input{width:100%;background:var(--bg4);border:1px solid var(--border2);color:var(--text);font-family:var(--sans);font-size:13px;font-weight:500;padding:8px 12px;border-radius:7px;outline:none;transition:border-color .15s}
+.info-input:focus{border-color:var(--accent)}
+
+/* ── Log tab ── */
+.log-list{display:flex;flex-direction:column;gap:4px}
+.log-item{display:flex;align-items:flex-start;gap:10px;padding:9px 12px;background:var(--bg2);border:1px solid var(--border);border-radius:7px;animation:fadeIn .15s ease}
+.log-icon{font-size:13px;flex-shrink:0;margin-top:1px}
+.log-msg{font-size:12px;flex:1}
+.log-msg strong{font-weight:700}
+.log-time{font-family:var(--mono);font-size:10px;color:var(--text3);flex-shrink:0}
+.log-empty{text-align:center;padding:36px;color:var(--text3);font-size:12px}
+
+/* ── Broadcast tab ── */
+.broadcast-wrap{max-width:560px}
+.broadcast-info{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:14px;margin-bottom:18px;font-size:13px;color:var(--text2);line-height:1.7}
+.broadcast-info strong{color:var(--text);font-weight:700}
+.device-check-list{display:flex;flex-direction:column;gap:6px;margin-bottom:18px}
+.device-check-item{display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;cursor:pointer;transition:all .15s}
+.device-check-item:hover{border-color:var(--border2)}
+.device-check-item.selected{border-color:var(--blue);background:var(--bluebg)}
+.dci-check{width:16px;height:16px;border-radius:4px;border:1.5px solid var(--border3);background:var(--bg4);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s}
+.dci-check.on{background:var(--blue);border-color:var(--blue)}
+.dci-check svg{width:10px;height:10px;fill:#fff;display:none}
+.dci-check.on svg{display:block}
+.dci-info{flex:1}
+.dci-name{font-size:13px;font-weight:700}
+.dci-meta{font-size:10px;color:var(--text3);font-family:var(--mono);margin-top:2px}
+.dci-status{font-family:var(--mono);font-size:10px}
+
+/* ── Empty state ── */
+.empty{text-align:center;padding:44px 20px;color:var(--text3);font-size:12px;line-height:1.8;border:1px dashed var(--border);border-radius:10px;background:var(--bg2)}
+.empty-icon{font-size:28px;margin-bottom:10px;opacity:.3}
+
+/* ── No selection ── */
+.no-selection{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--text3);text-align:center;gap:10px;padding:40px}
+.no-selection-icon{font-size:52px;opacity:.1;margin-bottom:4px}
+.no-selection h2{font-size:16px;font-weight:800;color:var(--text2)}
+.no-selection p{font-size:12px;max-width:280px;line-height:1.7}
+
+/* ── Modal ── */
+.modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:800;display:none;align-items:center;justify-content:center;backdrop-filter:blur(3px)}
+.modal-backdrop.show{display:flex}
+.modal{background:var(--bg3);border:1px solid var(--border2);border-radius:12px;padding:24px;width:100%;max-width:420px;animation:slideIn .2s ease;box-shadow:0 24px 60px rgba(0,0,0,.6)}
+.modal-title{font-size:16px;font-weight:800;margin-bottom:4px}
+.modal-sub{font-size:12px;color:var(--text3);font-family:var(--mono);margin-bottom:20px}
+.modal-field{margin-bottom:14px}
+.modal-field label{display:block;font-family:var(--mono);font-size:10px;color:var(--text3);letter-spacing:.12em;text-transform:uppercase;margin-bottom:5px}
+.modal-input{width:100%;background:var(--bg4);border:1px solid var(--border2);color:var(--text);font-family:var(--sans);font-size:13px;font-weight:500;padding:9px 12px;border-radius:7px;outline:none;transition:border-color .15s}
+.modal-input:focus{border-color:var(--accent)}
+.modal-input.error{border-color:var(--red)}
+.modal-err{font-size:11px;color:var(--red);font-family:var(--mono);margin-top:4px;display:none}
+.modal-err.show{display:block}
+.modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:20px}
+
+/* ── Confirm modal ── */
+.confirm-modal{max-width:380px}
+.confirm-msg{font-size:13px;color:var(--text2);line-height:1.7;margin-bottom:20px}
+
+/* ── Context menu ── */
+.ctx-menu{position:fixed;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;padding:5px;min-width:160px;box-shadow:0 8px 28px rgba(0,0,0,.55);z-index:900;display:none}
+.ctx-menu.show{display:block;animation:fadeIn .1s ease}
+.ctx-item{display:flex;align-items:center;gap:8px;padding:7px 11px;border-radius:5px;cursor:pointer;font-size:12px;font-family:var(--mono);color:var(--text2);transition:all .1s}
+.ctx-item:hover{background:var(--bg5);color:var(--text)}
+.ctx-item.danger{color:var(--red)}
+.ctx-item.danger:hover{background:var(--redbg)}
+.ctx-sep{height:1px;background:var(--border);margin:4px 0}
+
+/* ── Toast stack ── */
+.toast-stack{position:fixed;bottom:20px;right:20px;display:flex;flex-direction:column-reverse;gap:6px;z-index:9999}
+.toast{
+  background:var(--bg3);border:1px solid var(--border2);color:var(--text);
+  padding:10px 16px;border-radius:8px;font-size:12px;font-family:var(--mono);
+  transform:translateX(60px);opacity:0;transition:all .22s;pointer-events:none;
+  max-width:300px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis
+}
+.toast.show{transform:translateX(0);opacity:1}
+.toast.ok{border-color:var(--green);color:var(--green)}
+.toast.err{border-color:var(--red);color:var(--red)}
+.toast.info{border-color:var(--blue);color:var(--blue)}
+
+/* rename inline */
+.rename-input{background:var(--bg4);border:1px solid var(--accent);color:var(--text);font-family:var(--sans);font-size:13px;font-weight:700;padding:1px 7px;border-radius:4px;outline:none;width:100%}
+
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-thumb{background:var(--bg5);border-radius:2px}
+</style>
+</head>
+<body>
+<div class="shell">
+
+<!-- ══ HEADER ══ -->
+<header>
+  <div class="logo">
+    <div class="logo-mark"><svg viewBox="0 0 16 16"><path d="M2 2h5v5H2zM9 2h5v5H9zM2 9h5v5H2zM11 9v3H9v-3zM12 11h3v3h-3z"/></svg></div>
+    <div><div class="logo-name">ADKIOSK</div><div class="logo-tag">CONTROL CENTER</div></div>
+  </div>
+  <div class="header-mid">
+    <div class="stat-pill"><div class="dot dot-green" id="h-online-dot"></div><span id="h-online">0 online</span></div>
+    <div class="stat-pill"><div class="dot dot-red"></div><span id="h-offline">0 offline</span></div>
+
+  </div>
+  <div class="header-right"></div>
+</header>
+
+<!-- ══ BODY ══ -->
+<div class="body">
+
+  <!-- ── Sidebar ── -->
+  <div class="sidebar">
+    <div class="sidebar-head">
+      <div class="sidebar-title">DEVICES <span id="sb-count" style="color:var(--text2)"></span></div>
+      <button class="btn-refresh" id="refresh-btn" onclick="loadDevices()" title="Refresh">
+        <svg viewBox="0 0 16 16"><path d="M13.5 2.5A7 7 0 1 0 15 8h-2a5 5 0 1 1-1.1-3.15L10 6h5V1z"/></svg>
+      </button>
+    </div>
+    <div class="sidebar-search">
+      <div class="search-wrap">
+        <svg viewBox="0 0 16 16"><circle cx="6.5" cy="6.5" r="4.5" stroke="currentColor" stroke-width="1.5" fill="none"/><path d="M10.5 10.5l3 3" stroke="currentColor" stroke-width="1.5"/></svg>
+        <input class="search-input" id="search-input" placeholder="Search devices…" oninput="renderDeviceList()">
+      </div>
+    </div>
+    <div class="device-list" id="device-list">
+      <div class="no-devices"><div class="no-devices-icon">📡</div>No devices yet.<br>Power on a Pi or add one below.</div>
+    </div>
+  </div>
+
+  <!-- ── Detail panel ── -->
+  <div class="detail" id="detail-panel">
+    <div class="no-selection" id="no-selection">
+      <div class="no-selection-icon">🖥</div>
+      <h2>No Device Selected</h2>
+      <p>Pick a device from the list, or add one using the button in the sidebar.</p>
+    </div>
+  </div>
+
+</div><!-- /.body -->
+</div><!-- /.shell -->
+
+<!-- ══ ADD DEVICE MODAL ══ -->
+<div class="modal-backdrop" id="modal-add">
+  <div class="modal">
+    <div class="modal-title">Add Device</div>
+    <div class="modal-sub">Manually register a Raspberry Pi</div>
+    <div class="modal-field">
+      <label>Device Name *</label>
+      <input class="modal-input" id="add-name" placeholder="e.g. Lobby Screen" maxlength="60">
+      <div class="modal-err" id="add-name-err">Name is required</div>
+    </div>
+    <div class="modal-field">
+      <label>IP Address *</label>
+      <input class="modal-input" id="add-ip" placeholder="e.g. 192.168.1.42" maxlength="45">
+      <div class="modal-err" id="add-ip-err">Enter a valid IP address</div>
+    </div>
+    <div class="modal-field">
+      <label>Location / Room</label>
+      <input class="modal-input" id="add-location" placeholder="e.g. Ground Floor, Entrance" maxlength="80">
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('modal-add')">Cancel</button>
+      <button class="btn btn-primary" onclick="submitAddDevice()">Add Device</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ EDIT DEVICE MODAL ══ -->
+<div class="modal-backdrop" id="modal-edit">
+  <div class="modal">
+    <div class="modal-title">Edit Device</div>
+    <div class="modal-sub" id="edit-modal-sub">Update device info</div>
+    <div class="modal-field">
+      <label>Device Name *</label>
+      <input class="modal-input" id="edit-name" maxlength="60">
+      <div class="modal-err" id="edit-name-err">Name is required</div>
+    </div>
+    <div class="modal-field">
+      <label>IP Address *</label>
+      <input class="modal-input" id="edit-ip" maxlength="45">
+      <div class="modal-err" id="edit-ip-err">Enter a valid IP address</div>
+    </div>
+    <div class="modal-field">
+      <label>Location / Room</label>
+      <input class="modal-input" id="edit-location" maxlength="80">
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('modal-edit')">Cancel</button>
+      <button class="btn btn-primary" onclick="submitEditDevice()">Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ CONFIRM MODAL ══ -->
+<div class="modal-backdrop" id="modal-confirm">
+  <div class="modal confirm-modal">
+    <div class="modal-title" id="confirm-title">Are you sure?</div>
+    <div class="confirm-msg" id="confirm-msg"></div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('modal-confirm')">Cancel</button>
+      <button class="btn btn-danger" id="confirm-ok-btn" onclick="confirmOk()">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ CONTEXT MENU ══ -->
+<div class="ctx-menu" id="ctx-menu">
+  <div class="ctx-item" id="ctx-edit">✏️ &nbsp;Edit</div>
+  <div class="ctx-item" id="ctx-ping">🔄 &nbsp;Ping now</div>
+  <div class="ctx-sep"></div>
+  <div class="ctx-item danger" id="ctx-remove">🗑 &nbsp;Remove from list</div>
+</div>
+
+<!-- ══ TOAST STACK ══ -->
+<div class="toast-stack" id="toast-stack"></div>
+
+<script>
+// ══ State ═══════════════════════════════════════════════════════════════════
+let devices = [];        // [{id,name,ip,port,location,last_seen}]
+let selectedId = null;
+let currentAds = [];
+let selectedAds = new Set();
+let ctxTargetId = null;
+let dragSrc = null;
+let confirmCallback = null;
+let broadcastSelected = new Set();
+let activityLog = [];    // [{icon,msg,time}]
+let editTargetId = null;
+
+// ══ API helper ════════════════════════════════════════════════════════════════
+async function api(path, opts={}) {
+  const r = await fetch(path, { headers:{'Content-Type':'application/json'}, ...opts });
+  return r.json();
+}
+
+// ══ Load devices ══════════════════════════════════════════════════════════════
+async function loadDevices() {
+  const btn = document.getElementById('refresh-btn');
+  btn.classList.add('spinning');
+  try {
+    devices = await api('/api/devices');
+    renderDeviceList();
+    updateHeaderStats();
+    devices.forEach(d => pingDevice(d.id));
+  } catch(e) {
+    toast('Cannot reach admin server', 'err');
+  }
+  btn.classList.remove('spinning');
+}
+
+function updateHeaderStats() {
+  const online  = devices.filter(d => d._online === true).length;
+  const offline = devices.filter(d => d._online === false).length;
+
+  document.getElementById('h-online').textContent  = online  + ' online';
+  document.getElementById('h-offline').textContent = offline + ' offline';
+
+  document.getElementById('sb-count').textContent = devices.length ? `(${devices.length})` : '';
+}
+
+// ══ Ping device ═══════════════════════════════════════════════════════════════
+async function pingDevice(id) {
+  setDotState(id, 'checking');
+  try {
+    const r = await api(`/api/devices/${id}/ping`, {method:'POST'});
+    const d = devices.find(x => x.id === id);
+    if (d) d._online = r.online;
+    setDotState(id, r.online ? 'online' : 'offline');
+    const card = document.getElementById(`dc-${id}`);
+    if (card) card.classList.toggle('offline', !r.online);
+    updateHeaderStats();
+  } catch {
+    setDotState(id, 'offline');
+  }
+}
+
+function setDotState(id, state) {
+  const dot = document.querySelector(`#dc-${id} .dc-dot`);
+  if (dot) dot.className = `dc-dot ${state}`;
+}
+
+// ══ Render device list ════════════════════════════════════════════════════════
+function renderDeviceList() {
+  const el = document.getElementById('device-list');
+  const q  = document.getElementById('search-input').value.trim().toLowerCase();
+  let list = devices;
+  if (q) list = devices.filter(d =>
+    d.name.toLowerCase().includes(q) ||
+    (d.location||'').toLowerCase().includes(q) ||
+    (d.ip||'').includes(q)
+  );
+
+  // Clear container
+  el.innerHTML = '';
+
+  // Empty state
+  if (!list.length) {
+    const empty = document.createElement('div');
+    empty.className = 'no-devices';
+    empty.innerHTML = q
+      ? '<div class="no-devices-icon">🔍</div>No devices match "' + esc(q) + '"'
+      : '<div class="no-devices-icon">📡</div>No devices yet.<br>Power on a Pi or add one below.';
+    el.appendChild(empty);
+  } else {
+    // Render each device card via DOM
+    list.forEach(d => {
+      const ago = d.last_seen ? timeAgo(d.last_seen) : 'never';
+      const card = document.createElement('div');
+      card.className = 'device-card' + (d.id === selectedId ? ' active' : '');
+      card.id = 'dc-' + d.id;
+      card.onclick = () => selectDevice(d.id);
+
+      let metaHTML = '<span>' + d.ip + '</span><span>&middot; ' + ago + '</span>';
+      if (d.location) metaHTML += '<span class="dc-location">📍 ' + esc(d.location) + '</span>';
+      if (d._adCount != null) metaHTML += '<span class="dc-ad-count">' + d._adCount + ' ads</span>';
+
+      card.innerHTML =
+        '<div class="dc-top">' +
+          '<div class="dc-dot checking"></div>' +
+          '<div class="dc-name" id="dcname-' + d.id + '">' + esc(d.name) + '</div>' +
+          '<button class="dc-menu-btn" title="Options">&#8943;</button>' +
+        '</div>' +
+        '<div class="dc-meta">' + metaHTML + '</div>';
+
+      // Attach menu button via event (avoids inline onclick with quotes)
+      card.querySelector('.dc-menu-btn').addEventListener('click', e => {
+        e.stopPropagation();
+        openCtx(e, d.id);
+      });
+
+      el.appendChild(card);
+    });
+  }
+
+  // Always append Add Device button last — dynamic, always at bottom of list
+  const btn = document.createElement('button');
+  btn.className = 'btn-add-device';
+  btn.textContent = '+ Add Device';
+  btn.onclick = openAddDevice;
+  el.appendChild(btn);
+}
+
+// ══ Select device ══════════════════════════════════════════════════════════════
+async function selectDevice(id) {
+  selectedId = id;
+  selectedAds.clear();
+  document.querySelectorAll('.device-card').forEach(c => c.classList.remove('active'));
+  const card = document.getElementById(`dc-${id}`);
+  if (card) card.classList.add('active');
+  const d = devices.find(x => x.id === id);
+  renderDetailShell(d);
+  switchTab('ads');
+  await loadAds(id);
+}
+
+// ══ Detail shell ══════════════════════════════════════════════════════════════
+function renderDetailShell(d) {
+  const panel = document.getElementById('detail-panel');
+  const locBadge = d.location ? `<span>📍 ${esc(d.location)}</span>` : '';
+  panel.innerHTML = `
+    <div class="detail-header">
+      <div class="detail-title-wrap">
+        <div class="detail-title">${esc(d.name)}</div>
+        <div class="detail-sub">
+          <span>🖥 ${d.ip}:${d.port||8080}</span>
+          ${locBadge}
+          <span id="detail-lastseen">🕐 ${d.last_seen ? timeAgo(d.last_seen) : 'never'}</span>
+        </div>
+      </div>
+      <div class="detail-actions">
+        <button class="btn btn-ghost btn-sm" onclick="pingDevice('${d.id}');toast('Pinging…','info')">🔄 PING</button>
+        <button class="btn btn-ghost btn-sm" onclick="openEditDevice('${d.id}')">✏️ EDIT</button>
+        <button class="btn btn-danger btn-sm" onclick="confirmClearAll('${d.id}')">🗑 CLEAR ALL</button>
+      </div>
+    </div>
+    <div class="tabs" id="detail-tabs">
+      <div class="tab active" id="tab-btn-ads"     onclick="switchTab('ads')">ADS</div>
+      <div class="tab"        id="tab-btn-upload"  onclick="switchTab('upload')">UPLOAD</div>
+      <div class="tab"        id="tab-btn-broadcast" onclick="switchTab('broadcast')">BROADCAST</div>
+      <div class="tab"        id="tab-btn-info"    onclick="switchTab('info')">INFO</div>
+      <div class="tab"        id="tab-btn-log"     onclick="switchTab('log')">ACTIVITY</div>
+    </div>
+    <div class="tab-body">
+
+      <!-- ADS TAB -->
+      <div class="tab-pane active" id="tab-ads">
+        <div class="bulk-bar" id="bulk-bar">
+          <span class="bulk-bar-label" id="bulk-label">0 selected</span>
+          <button class="btn btn-blue btn-sm" onclick="copyToOtherDevices()">📋 Copy to device…</button>
+          <button class="btn btn-danger btn-sm" onclick="bulkDelete()">🗑 Delete selected</button>
+          <button class="btn btn-ghost btn-sm" onclick="clearSelection()">✕ Deselect</button>
+        </div>
+        <div class="slabel">
+          <span>PLAYLIST &nbsp;·&nbsp; <span id="ad-count">—</span> videos</span>
+          <button class="btn btn-ghost btn-sm" onclick="selectAllAds()">Select all</button>
+        </div>
+        <div class="ad-list" id="ad-list">
+          <div class="empty"><div class="empty-icon">⏳</div>Loading…</div>
+        </div>
+      </div>
+
+      <!-- UPLOAD TAB -->
+      <div class="tab-pane" id="tab-upload">
+        <div class="upload-zone" id="upload-zone"
+          onclick="document.getElementById('upload-input').click()"
+          ondragover="event.preventDefault();this.classList.add('drag')"
+          ondragleave="this.classList.remove('drag')"
+          ondrop="this.classList.remove('drag');handleUpload(event.dataTransfer.files);event.preventDefault()">
+          <p>📽 &nbsp;Drop MP4 / WebM / MOV / AVI files here</p>
+          <div class="btn btn-ghost" style="display:inline-flex">BROWSE FILES</div>
+          <input type="file" id="upload-input" multiple accept="video/*" onchange="handleUpload(this.files)">
+        </div>
+        <div class="upload-prog" id="upload-prog">
+          <div class="prog-label" id="prog-label">Uploading…</div>
+          <div class="prog-track"><div class="prog-fill" id="prog-fill"></div></div>
+        </div>
+        <div class="slabel" style="margin-top:4px">SUPPORTED FORMATS</div>
+        <div style="font-size:12px;color:var(--text3);font-family:var(--mono);line-height:2">
+          MP4 &nbsp;·&nbsp; MOV &nbsp;·&nbsp; WebM &nbsp;·&nbsp; AVI &nbsp;·&nbsp; MKV &nbsp;·&nbsp; M4V
+        </div>
+      </div>
+
+      <!-- BROADCAST TAB -->
+      <div class="tab-pane" id="tab-broadcast">
+        <div class="broadcast-wrap">
+          <div class="broadcast-info">
+            <strong>Push ads to multiple devices at once.</strong><br>
+            Select which devices should receive the current playlist from <strong id="bc-src-name">this device</strong>, then click Push.
+          </div>
+          <div class="slabel">SELECT TARGET DEVICES</div>
+          <div class="device-check-list" id="bc-device-list"></div>
+          <div style="display:flex;gap:8px;align-items:center">
+            <button class="btn btn-blue" onclick="runBroadcast()">
+              <svg viewBox="0 0 16 16"><path d="M1 8L15 1v14zM1 8h8"/></svg>
+              PUSH TO SELECTED
+            </button>
+            <button class="btn btn-ghost btn-sm" onclick="selectAllBroadcast()">Select all</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- INFO TAB -->
+      <div class="tab-pane" id="tab-info">
+        <div class="info-grid">
+          <div class="info-card">
+            <div class="info-card-label">Status</div>
+            <div class="info-card-val" id="info-status" style="font-size:15px">—</div>
+          </div>
+          <div class="info-card">
+            <div class="info-card-label">Ad Count</div>
+            <div class="info-card-val" id="info-adcount">—</div>
+            <div class="info-card-sub">videos in playlist</div>
+          </div>
+          <div class="info-card">
+            <div class="info-card-label">IP Address</div>
+            <div class="info-card-val" style="font-size:14px;font-family:var(--mono)">${d.ip}</div>
+            <div class="info-card-sub">port ${d.port||8080}</div>
+          </div>
+          <div class="info-card">
+            <div class="info-card-label">Last Seen</div>
+            <div class="info-card-val" style="font-size:14px">${d.last_seen ? timeAgo(d.last_seen) : '—'}</div>
+          </div>
+        </div>
+        <div class="slabel">DEVICE SETTINGS</div>
+        <div class="info-field">
+          <label>Name</label>
+          <input class="info-input" id="info-name-input" value="${esc(d.name)}" placeholder="Device name">
+        </div>
+        <div class="info-field">
+          <label>Location / Room</label>
+          <input class="info-input" id="info-loc-input" value="${esc(d.location||'')}" placeholder="e.g. Ground Floor Lobby">
+        </div>
+        <div class="info-field">
+          <label>IP Address</label>
+          <input class="info-input" id="info-ip-input" value="${esc(d.ip||'')}" placeholder="192.168.x.x">
+        </div>
+        <button class="btn btn-primary" onclick="saveInfoTab('${d.id}')">SAVE CHANGES</button>
+      </div>
+
+      <!-- LOG TAB -->
+      <div class="tab-pane" id="tab-log">
+        <div class="slabel">
+          <span>ACTIVITY LOG</span>
+          <button class="btn btn-ghost btn-sm" onclick="clearLog()">Clear</button>
+        </div>
+        <div class="log-list" id="log-list">
+          <div class="log-empty">No activity yet for this device.</div>
+        </div>
+      </div>
+
+    </div><!-- /.tab-body -->
+  `;
+
+  // Populate broadcast device list
+  renderBroadcastList();
+  renderLog();
+}
+
+// ══ Tab switching ══════════════════════════════════════════════════════════════
+function switchTab(name) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+  const btn = document.getElementById(`tab-btn-${name}`);
+  const pane = document.getElementById(`tab-${name}`);
+  if (btn) btn.classList.add('active');
+  if (pane) pane.classList.add('active');
+  if (name === 'broadcast') renderBroadcastList();
+  if (name === 'log') renderLog();
+}
+
+// ══ Load ads ══════════════════════════════════════════════════════════════════
+async function loadAds(id) {
+  try {
+    const data = await api(`/api/devices/${id}/ads`);
+    currentAds = data.files || [];
+    const d = devices.find(x => x.id === id);
+    if (d) d._adCount = currentAds.length;
+    renderAds();
+    updateHeaderStats();
+    // Update info tab counts
+    const ic = document.getElementById('info-adcount');
+    const is = document.getElementById('info-status');
+    if (ic) ic.textContent = currentAds.length;
+    if (is) {
+      const dot = document.querySelector(`#dc-${id} .dc-dot`);
+      const online = dot && dot.classList.contains('online');
+      is.textContent = online ? '🟢 Online' : '🔴 Offline';
+    }
+  } catch(e) {
+    const el = document.getElementById('ad-list');
+    if (el) el.innerHTML = `<div class="empty"><div class="empty-icon">⚠️</div>Could not reach device.<br>Check it's powered on and connected.</div>`;
+  }
+}
+
+// ══ Render ads ════════════════════════════════════════════════════════════════
+function renderAds() {
+  const el = document.getElementById('ad-list');
+  const countEl = document.getElementById('ad-count');
+  if (!el) return;
+  if (countEl) countEl.textContent = currentAds.length;
+  if (!currentAds.length) {
+    el.innerHTML = `<div class="empty"><div class="empty-icon">📋</div>No ads on this device.<br>Go to the Upload tab to add videos.</div>`;
+    return;
+  }
+  el.innerHTML = currentAds.map((name, i) => {
+    const sel = selectedAds.has(name);
+    return `
+    <div class="ad-item ${sel?'selected':''}" id="ai-${i}"
+      draggable="true"
+      ondragstart="dragStart(event,${i})"
+      ondragover="dragOver(event,${i})"
+      ondrop="dragDrop(event,${i})"
+      ondragend="dragEnd()">
+      <div class="ad-handle" title="Drag to reorder"><svg viewBox="0 0 16 16"><path d="M4 4h2v2H4zm6 0h2v2h-2zM4 9h2v2H4zm6 0h2v2h-2z"/></svg></div>
+      <div class="ad-check ${sel?'checked':''}" onclick="toggleAdSelect('${esc(name)}')">
+        <svg viewBox="0 0 10 10"><path d="M1.5 5l2.5 2.5 4.5-4.5" stroke="#fff" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg>
+      </div>
+      ${i===0 ? `<div class="ad-playing-dot" title="Plays first"></div>` : `<div class="ad-index">${i+1}</div>`}
+      <div class="ad-info">
+        <div class="ad-name" title="${esc(name)}">${esc(name)}</div>
+      </div>
+      ${i===0 ? `<span class="ad-badge">FIRST</span>` : ''}
+      <div class="ad-reorder">
+        <button class="reorder-btn" onclick="moveUp(${i})" ${i===0?'disabled':''}>▲</button>
+        <button class="reorder-btn" onclick="moveDown(${i})" ${i===currentAds.length-1?'disabled':''}>▼</button>
+      </div>
+      <button class="btn-del-sm" onclick="deleteAd('${esc(name)}')" title="Delete">
+        <svg viewBox="0 0 16 16"><path d="M3 4h10v1H3zm2 1h6v9H5zm2-3h2v1H7z"/></svg>
+      </button>
+    </div>`;
+  }).join('');
+  updateBulkBar();
+}
+
+// ══ Selection ══════════════════════════════════════════════════════════════════
+function toggleAdSelect(name) {
+  if (selectedAds.has(name)) selectedAds.delete(name);
+  else selectedAds.add(name);
+  renderAds();
+}
+function selectAllAds() {
+  currentAds.forEach(n => selectedAds.add(n));
+  renderAds();
+}
+function clearSelection() {
+  selectedAds.clear();
+  renderAds();
+}
+function updateBulkBar() {
+  const bar   = document.getElementById('bulk-bar');
+  const label = document.getElementById('bulk-label');
+  if (!bar) return;
+  if (selectedAds.size > 0) {
+    bar.classList.add('show');
+    label.textContent = `${selectedAds.size} selected`;
+  } else {
+    bar.classList.remove('show');
+  }
+}
+
+// ══ Drag & drop reorder ═══════════════════════════════════════════════════════
+function dragStart(e, i) {
+  dragSrc = i;
+  e.currentTarget.classList.add('dragging');
+  e.dataTransfer.effectAllowed = 'move';
+}
+function dragOver(e, i) {
+  e.preventDefault();
+  document.querySelectorAll('.ad-item').forEach(el => el.classList.remove('drag-over'));
+  if (dragSrc !== i) e.currentTarget.classList.add('drag-over');
+}
+function dragDrop(e, i) {
+  e.preventDefault();
+  if (dragSrc === null || dragSrc === i) return;
+  const moved = currentAds.splice(dragSrc, 1)[0];
+  currentAds.splice(i, 0, moved);
+  renderAds();
+  saveReorder();
+}
+function dragEnd() {
+  dragSrc = null;
+  document.querySelectorAll('.ad-item').forEach(el => el.classList.remove('dragging','drag-over'));
+}
+
+// ══ Reorder via buttons ═══════════════════════════════════════════════════════
+async function moveUp(i) {
+  if (i===0) return;
+  [currentAds[i-1],currentAds[i]] = [currentAds[i],currentAds[i-1]];
+  renderAds(); await saveReorder();
+}
+async function moveDown(i) {
+  if (i===currentAds.length-1) return;
+  [currentAds[i],currentAds[i+1]] = [currentAds[i+1],currentAds[i]];
+  renderAds(); await saveReorder();
+}
+async function saveReorder() {
+  try {
+    await api(`/api/devices/${selectedId}/reorder`,{method:'POST',body:JSON.stringify({order:currentAds})});
+    logActivity('🔀', `Playlist reordered`);
+    toast('Order saved','ok');
+  } catch { toast('Reorder failed','err'); }
+}
+
+// ══ Upload ════════════════════════════════════════════════════════════════════
+async function handleUpload(files) {
+  const videos = Array.from(files).filter(f => f.type.startsWith('video/'));
+  if (!videos.length) { toast('No video files selected','err'); return; }
+  const prog  = document.getElementById('upload-prog');
+  const fill  = document.getElementById('prog-fill');
+  const label = document.getElementById('prog-label');
+  if (!prog) return;
+  prog.classList.add('show');
+  let ok=0, fail=0;
+  for (let i=0; i<videos.length; i++) {
+    const f = videos[i];
+    label.textContent = `Uploading ${i+1}/${videos.length}: ${f.name}`;
+    fill.style.width = (i/videos.length*100)+'%';
+    const fd = new FormData(); fd.append('video',f);
+    try {
+      const r = await fetch(`/api/devices/${selectedId}/upload`,{method:'POST',body:fd});
+      const j = await r.json();
+      if (j.ok) { ok++; logActivity('📤',`Uploaded <strong>${esc(f.name)}</strong>`); }
+      else { fail++; toast(`✗ ${f.name}: ${j.error||'failed'}`,'err'); }
+    } catch { fail++; toast(`✗ Upload failed: ${f.name}`,'err'); }
+  }
+  fill.style.width='100%';
+  label.textContent = `Done! ${ok} uploaded${fail?', '+fail+' failed':''}`;
+  if (ok) toast(`${ok} file${ok>1?'s':''} uploaded`,'ok');
+  setTimeout(()=>{ prog.classList.remove('show'); fill.style.width='0'; },1800);
+  await loadAds(selectedId);
+  // Switch to ads tab after upload
+  switchTab('ads');
+}
+
+// ══ Delete single ══════════════════════════════════════════════════════════════
+function deleteAd(name) {
+  showConfirm(`Delete "${name}"?`,`This will remove <strong>${esc(name)}</strong> from this device permanently.`, async ()=>{
+    try {
+      const r = await api(`/api/devices/${selectedId}/delete`,{method:'POST',body:JSON.stringify({filename:name})});
+      if (r.ok) { logActivity('🗑',`Deleted <strong>${esc(name)}</strong>`); toast(`Deleted: ${name}`,'ok'); await loadAds(selectedId); }
+      else toast('Delete failed','err');
+    } catch { toast('Delete failed','err'); }
+  });
+}
+
+// ══ Bulk delete ════════════════════════════════════════════════════════════════
+function bulkDelete() {
+  const names = [...selectedAds];
+  if (!names.length) return;
+  showConfirm(`Delete ${names.length} ad${names.length>1?'s':''}?`,`This will permanently remove <strong>${names.length} file${names.length>1?'s':''}</strong> from this device.`, async ()=>{
+    let ok=0;
+    for (const name of names) {
+      try {
+        const r = await api(`/api/devices/${selectedId}/delete`,{method:'POST',body:JSON.stringify({filename:name})});
+        if (r.ok) ok++;
+      } catch {}
+    }
+    logActivity('🗑',`Bulk deleted <strong>${ok} files</strong>`);
+    toast(`Deleted ${ok} file${ok>1?'s':''}`,'ok');
+    selectedAds.clear();
+    await loadAds(selectedId);
+  });
+}
+
+// ══ Clear all ══════════════════════════════════════════════════════════════════
+function confirmClearAll(id) {
+  const d = devices.find(x=>x.id===id);
+  showConfirm(`Clear all ads on "${d?.name}"?`,`This will delete <strong>all ${currentAds.length} video${currentAds.length!==1?'s':''}</strong> from this device. This cannot be undone.`, async ()=>{
+    let ok=0;
+    for (const name of [...currentAds]) {
+      try {
+        const r = await api(`/api/devices/${id}/delete`,{method:'POST',body:JSON.stringify({filename:name})});
+        if (r.ok) ok++;
+      } catch {}
+    }
+    logActivity('🗑',`Cleared all ads (${ok} deleted)`);
+    toast(`Cleared ${ok} file${ok>1?'s':''}`,'ok');
+    await loadAds(id);
+  });
+}
+
+// ══ Copy to other devices (bulk) ══════════════════════════════════════════════
+function copyToOtherDevices() {
+  if (!selectedAds.size) return;
+  // For now show a simple device picker via broadcast with only selected files
+  toast(`Copy feature: upload these ${selectedAds.size} files to another device from its Upload tab.`,'info');
+}
+
+// ══ Broadcast ═════════════════════════════════════════════════════════════════
+function renderBroadcastList() {
+  const el = document.getElementById('bc-device-list');
+  const src = document.getElementById('bc-src-name');
+  if (!el) return;
+  const d = devices.find(x=>x.id===selectedId);
+  if (src && d) src.textContent = d.name;
+  const others = devices.filter(x=>x.id!==selectedId);
+  if (!others.length) {
+    el.innerHTML = `<div class="empty"><div class="empty-icon">📡</div>No other devices registered.</div>`;
+    return;
+  }
+  el.innerHTML = others.map(d2 => {
+    const on = broadcastSelected.has(d2.id);
+    const dot = document.querySelector(`#dc-${d2.id} .dc-dot`);
+    const online = dot && dot.classList.contains('online');
+    return `
+    <div class="device-check-item ${on?'selected':''}" onclick="toggleBroadcast('${d2.id}')">
+      <div class="dci-check ${on?'on':''}"><svg viewBox="0 0 10 10"><path d="M1.5 5l2.5 2.5 4.5-4.5" stroke="#fff" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></div>
+      <div class="dci-info">
+        <div class="dci-name">${esc(d2.name)}</div>
+        <div class="dci-meta">${d2.ip} ${d2.location?'· '+esc(d2.location):''}</div>
+      </div>
+      <div class="dci-status" style="color:${online?'var(--green)':'var(--text3)'}">${online?'● ONLINE':'○ OFFLINE'}</div>
+    </div>`;
+  }).join('');
+}
+
+function toggleBroadcast(id) {
+  if (broadcastSelected.has(id)) broadcastSelected.delete(id);
+  else broadcastSelected.add(id);
+  renderBroadcastList();
+}
+function selectAllBroadcast() {
+  devices.filter(x=>x.id!==selectedId).forEach(d=>broadcastSelected.add(d.id));
+  renderBroadcastList();
+}
+
+async function runBroadcast() {
+  if (!broadcastSelected.size) { toast('Select at least one target device','err'); return; }
+  if (!currentAds.length) { toast('No ads on this device to push','err'); return; }
+  showConfirm(
+    `Push playlist to ${broadcastSelected.size} device${broadcastSelected.size>1?'s':''}?`,
+    `The reorder from <strong>${esc(devices.find(x=>x.id===selectedId)?.name||'')}</strong> will be applied to ${broadcastSelected.size} device${broadcastSelected.size>1?'s':''}. Existing ads on those devices are <strong>not</strong> deleted — only the order is synced.`,
+    async () => {
+      let ok=0, fail=0;
+      for (const tid of broadcastSelected) {
+        try {
+          const r = await api(`/api/devices/${tid}/reorder`,{method:'POST',body:JSON.stringify({order:currentAds})});
+          if (r.ok) ok++; else fail++;
+        } catch { fail++; }
+      }
+      const tname = [...broadcastSelected].map(id=>devices.find(x=>x.id===id)?.name||id).join(', ');
+      logActivity('📡',`Broadcast reorder to <strong>${tname}</strong>`);
+      toast(`Pushed to ${ok} device${ok>1?'s':''}${fail?', '+fail+' failed':''}`,'ok');
+      broadcastSelected.clear();
+      renderBroadcastList();
+    }
+  );
+}
+
+// ══ Info tab save ══════════════════════════════════════════════════════════════
+async function saveInfoTab(id) {
+  const name = document.getElementById('info-name-input')?.value.trim();
+  const loc  = document.getElementById('info-loc-input')?.value.trim();
+  const ip   = document.getElementById('info-ip-input')?.value.trim();
+  if (!name) { toast('Name cannot be empty','err'); return; }
+  try {
+    await api(`/api/devices/${id}/rename`,{method:'POST',body:JSON.stringify({name,location:loc,ip})});
+    const d = devices.find(x=>x.id===id);
+    if (d) { d.name=name; d.location=loc; if(ip) d.ip=ip; }
+    renderDeviceList();
+    document.querySelector('.detail-title').textContent = name;
+    logActivity('✏️',`Device info updated`);
+    toast('Changes saved','ok');
+  } catch { toast('Save failed','err'); }
+}
+
+// ══ Activity log ══════════════════════════════════════════════════════════════
+function logActivity(icon, msg) {
+  activityLog.unshift({ icon, msg, time: Date.now(), device: selectedId });
+  renderLog();
+}
+function renderLog() {
+  const el = document.getElementById('log-list');
+  if (!el) return;
+  const entries = activityLog.filter(e=>e.device===selectedId);
+  if (!entries.length) {
+    el.innerHTML = `<div class="log-empty">No activity yet for this device.</div>`;
+    return;
+  }
+  el.innerHTML = entries.slice(0,50).map(e=>`
+    <div class="log-item">
+      <span class="log-icon">${e.icon}</span>
+      <span class="log-msg">${e.msg}</span>
+      <span class="log-time">${timeAgo(Math.floor(e.time/1000))}</span>
+    </div>`).join('');
+}
+function clearLog() {
+  activityLog = activityLog.filter(e=>e.device!==selectedId);
+  renderLog();
+}
+
+// ══ Add device modal ═══════════════════════════════════════════════════════════
+function openAddDevice() {
+  document.getElementById('add-name').value='';
+  document.getElementById('add-ip').value='';
+  document.getElementById('add-location').value='';
+  document.getElementById('add-name-err').classList.remove('show');
+  document.getElementById('add-ip-err').classList.remove('show');
+  document.getElementById('add-name').classList.remove('error');
+  document.getElementById('add-ip').classList.remove('error');
+  openModal('modal-add');
+  setTimeout(()=>document.getElementById('add-name').focus(),100);
+}
+
+async function submitAddDevice() {
+  const name = document.getElementById('add-name').value.trim();
+  const ip   = document.getElementById('add-ip').value.trim();
+  const loc  = document.getElementById('add-location').value.trim();
+  let valid  = true;
+  if (!name) {
+    document.getElementById('add-name').classList.add('error');
+    document.getElementById('add-name-err').classList.add('show');
+    valid=false;
+  } else {
+    document.getElementById('add-name').classList.remove('error');
+    document.getElementById('add-name-err').classList.remove('show');
+  }
+  if (!ip || !/^[\d.:\[\]a-fA-F]+$/.test(ip)) {
+    document.getElementById('add-ip').classList.add('error');
+    document.getElementById('add-ip-err').classList.add('show');
+    valid=false;
+  } else {
+    document.getElementById('add-ip').classList.remove('error');
+    document.getElementById('add-ip-err').classList.remove('show');
+  }
+  if (!valid) return;
+  try {
+    // Generate a unique ID from name + timestamp
+    const id = name.toLowerCase().replace(/[^a-z0-9]/g,'-') + '-' + Date.now().toString(36);
+    await api('/api/devices/register',{method:'POST',body:JSON.stringify({id,name,location:loc,ip,port:8080})});
+    closeModal('modal-add');
+    toast(`Added: ${name}`,'ok');
+    logActivity('➕',`Device <strong>${esc(name)}</strong> added manually`);
+    await loadDevices();
+  } catch { toast('Failed to add device','err'); }
+}
+
+// ══ Edit device modal ══════════════════════════════════════════════════════════
+function openEditDevice(id) {
+  const d = devices.find(x=>x.id===id);
+  if (!d) return;
+  editTargetId = id;
+  document.getElementById('edit-name').value     = d.name||'';
+  document.getElementById('edit-ip').value       = d.ip||'';
+  document.getElementById('edit-location').value = d.location||'';
+  document.getElementById('edit-modal-sub').textContent = `Editing: ${d.name}`;
+  document.getElementById('edit-name-err').classList.remove('show');
+  document.getElementById('edit-ip-err').classList.remove('show');
+  openModal('modal-edit');
+  setTimeout(()=>document.getElementById('edit-name').focus(),100);
+}
+
+async function submitEditDevice() {
+  const name = document.getElementById('edit-name').value.trim();
+  const ip   = document.getElementById('edit-ip').value.trim();
+  const loc  = document.getElementById('edit-location').value.trim();
+  let valid  = true;
+  if (!name) { document.getElementById('edit-name').classList.add('error'); document.getElementById('edit-name-err').classList.add('show'); valid=false; }
+  else { document.getElementById('edit-name').classList.remove('error'); document.getElementById('edit-name-err').classList.remove('show'); }
+  if (!ip || !/^[\d.:\[\]a-fA-F]+$/.test(ip)) { document.getElementById('edit-ip').classList.add('error'); document.getElementById('edit-ip-err').classList.add('show'); valid=false; }
+  else { document.getElementById('edit-ip').classList.remove('error'); document.getElementById('edit-ip-err').classList.remove('show'); }
+  if (!valid) return;
+  try {
+    await api(`/api/devices/${editTargetId}/rename`,{method:'POST',body:JSON.stringify({name,location:loc,ip})});
+    const d = devices.find(x=>x.id===editTargetId);
+    if (d) { d.name=name; d.location=loc; d.ip=ip; }
+    renderDeviceList();
+    if (selectedId===editTargetId) {
+      document.querySelector('.detail-title').textContent = name;
+    }
+    closeModal('modal-edit');
+    toast('Device updated','ok');
+  } catch { toast('Update failed','err'); }
+}
+
+// ══ Context menu ═══════════════════════════════════════════════════════════════
+function openCtx(e, id) {
+  e.stopPropagation();
+  ctxTargetId = id;
+  const m = document.getElementById('ctx-menu');
+  m.style.left = Math.min(e.clientX, window.innerWidth-180)+'px';
+  m.style.top  = Math.min(e.clientY, window.innerHeight-120)+'px';
+  m.classList.add('show');
+}
+document.addEventListener('click', ()=>document.getElementById('ctx-menu').classList.remove('show'));
+
+document.getElementById('ctx-edit').addEventListener('click', ()=>{
+  if (ctxTargetId) openEditDevice(ctxTargetId);
+});
+document.getElementById('ctx-ping').addEventListener('click', ()=>{
+  if (ctxTargetId) { pingDevice(ctxTargetId); toast('Pinging…','info'); }
+});
+document.getElementById('ctx-remove').addEventListener('click', ()=>{
+  if (!ctxTargetId) return;
+  const d = devices.find(x=>x.id===ctxTargetId);
+  showConfirm(
+    `Remove "${d?.name}"?`,
+    `This removes the device from the registry. <strong>The Pi itself is unaffected</strong> — it will re-register automatically on next boot.`,
+    async ()=>{
+      await api(`/api/devices/${ctxTargetId}/remove`,{method:'POST'});
+      if (selectedId===ctxTargetId) {
+        selectedId=null;
+        document.getElementById('detail-panel').innerHTML=`
+          <div class="no-selection" id="no-selection">
+            <div class="no-selection-icon">🖥</div>
+            <h2>No Device Selected</h2>
+            <p>Pick a device from the list, or add one using the button in the sidebar.</p>
+          </div>`;
+      }
+      toast('Device removed','ok');
+      loadDevices();
+    }
+  );
+});
+
+// ══ Modal helpers ══════════════════════════════════════════════════════════════
+function openModal(id) {
+  document.getElementById(id).classList.add('show');
+}
+function closeModal(id) {
+  document.getElementById(id).classList.remove('show');
+}
+// Close on backdrop click
+document.querySelectorAll('.modal-backdrop').forEach(b=>{
+  b.addEventListener('click', e=>{ if(e.target===b) b.classList.remove('show'); });
+});
+// Enter key on modal inputs
+document.getElementById('modal-add').addEventListener('keydown', e=>{ if(e.key==='Enter') submitAddDevice(); });
+document.getElementById('modal-edit').addEventListener('keydown', e=>{ if(e.key==='Enter') submitEditDevice(); });
+
+// ══ Confirm modal ══════════════════════════════════════════════════════════════
+function showConfirm(title, msg, callback) {
+  document.getElementById('confirm-title').textContent = title;
+  document.getElementById('confirm-msg').innerHTML = msg;
+  confirmCallback = callback;
+  openModal('modal-confirm');
+}
+function confirmOk() {
+  closeModal('modal-confirm');
+  if (confirmCallback) confirmCallback();
+  confirmCallback = null;
+}
+
+// ══ Toast ══════════════════════════════════════════════════════════════════════
+function toast(msg, type='ok') {
+  const stack = document.getElementById('toast-stack');
+  const t = document.createElement('div');
+  t.className = `toast ${type}`;
+  t.textContent = msg;
+  stack.appendChild(t);
+  requestAnimationFrame(()=>t.classList.add('show'));
+  setTimeout(()=>{
+    t.classList.remove('show');
+    setTimeout(()=>t.remove(), 300);
+  }, 3200);
+}
+
+// ══ Utilities ══════════════════════════════════════════════════════════════════
+function esc(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function timeAgo(ts) {
+  const s = Math.floor(Date.now()/1000) - ts;
+  if (s < 5)    return 'just now';
+  if (s < 60)   return s+'s ago';
+  if (s < 3600) return Math.floor(s/60)+'m ago';
+  if (s < 86400)return Math.floor(s/3600)+'h ago';
+  return Math.floor(s/86400)+'d ago';
+}
+
+// ══ Init ═══════════════════════════════════════════════════════════════════════
+renderDeviceList(); // show button immediately, before API responds
+loadDevices();
+setInterval(loadDevices, 30000);
+</script>
+</body>
+</html>
