@@ -1,0 +1,14 @@
+[Unit]
+Description=AdKiosk API Server
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+ExecStart=/usr/bin/python3 /home/pi/adkiosk/server.py
+WorkingDirectory=/home/pi/adkiosk
+Restart=always
+RestartSec=5
+User=pi
+
+[Install]
+WantedBy=multi-user.target
