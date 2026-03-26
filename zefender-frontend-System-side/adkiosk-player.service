@@ -1,0 +1,16 @@
+[Unit]
+Description=AdKiosk Video Player
+After=graphical.target adkiosk.service
+Wants=graphical.target
+
+[Service]
+ExecStart=/usr/bin/python3 /home/pi/adkiosk/kiosk.py
+WorkingDirectory=/home/pi/adkiosk
+Restart=always
+RestartSec=3
+User=pi
+Environment=DISPLAY=:0
+Environment=XDG_RUNTIME_DIR=/run/user/1000
+
+[Install]
+WantedBy=graphical.target

@@ -1,0 +1,12 @@
+{
+  "name": "zefender-root",
+  "version": "1.0.0",
+  "description": "Root configuration to run Zefender UI and Backend concurrently",
+  "scripts": {
+    "start": "concurrently \"npm run dev --prefix zefender-backend\" \"npm run dev --prefix zefender-admin-ui\"",
+    "install:all": "npm install --prefix zefender-backend && npm install --prefix zefender-admin-ui --legacy-peer-deps"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
