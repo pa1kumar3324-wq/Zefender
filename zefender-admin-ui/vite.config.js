@@ -9,8 +9,16 @@ export default defineConfig({
   ],
   server: {
     proxy: {
-      '/api': 'http://localhost:5000',
-      '/media': 'http://localhost:5000',
+      // All /api requests → backend Express server
+      '/api': {
+        target: 'http://localhost:5000',
+        changeOrigin: true,
+      },
+      // Ad media files served from /uploads on the backend
+      '/uploads': {
+        target: 'http://localhost:5000',
+        changeOrigin: true,
+      },
     }
   }
 })

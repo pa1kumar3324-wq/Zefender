@@ -1,7 +1,23 @@
+import { useState } from "react"
+import Login from "./pages/Login"
 import Dashboard from "./pages/Dashboard"
 
-const TEST_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6InRlc3QtYWRtaW4iLCJyb2xlIjoiYWRtaW4iLCJpYXQiOjE3NzM3NzE4NzgsImV4cCI6MTc3NDM3NjY3OH0.vdQvaGyAn5PFV3Q3cUTiSI-TDhAd7xspCDRbCq-5ip4"
-
 export default function App() {
-  return <Dashboard token={TEST_TOKEN} onLogout={() => {}} />
+  const [token, setToken] = useState(() => localStorage.getItem("zef_token") || null)
+
+  const handleLogin = (newToken) => {
+    localStorage.setItem("zef_token", newToken)
+    setToken(newToken)
+  }
+
+  const handleLogout = () => {
+    localStorage.removeItem("zef_token")
+    setToken(null)
+  }
+
+  if (!token) {
+    return <Login onLogin={handleLogin} />
+  }
+
+  return <Dashboard token={token} onLogout={handleLogout} />
 }

@@ -11,17 +11,22 @@ const adRoutes = require("./routes/ad.routes");
 const playlistRoutes = require("./routes/playlist.routes");
 const eventRoutes = require("./routes/event.routes");
 const deviceRoutes = require("./routes/device.routes");
+const authRoutes = require("./routes/auth.routes");
 
 const app = express();
 
 // Security middleware
-app.use(helmet());
-app.use(cors());
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: "cross-origin" },
+  contentSecurityPolicy: false,
+}));
+app.use(cors({ origin: true, credentials: true }));
 app.use(express.json());
 app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
 app.use(express.urlencoded({ extended: true }));
 
 // Routes
+app.use("/api/auth", authRoutes);
 app.use("/api/ads", adRoutes);
 app.use("/api/playlists", playlistRoutes);
 app.use("/api/events", eventRoutes);
