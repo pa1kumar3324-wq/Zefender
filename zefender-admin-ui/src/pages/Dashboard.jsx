@@ -2,15 +2,13 @@ import { useState } from "react"
 import Ads from "./Ads"
 import Playlists from "./Playlists"
 import Events from "./Events"
-import LivePreview from "./LivePreview"
 import Monitor from "./Monitor"
 
 const NAV = [
   { id: "ads", label: "ADS", icon: "▦" },
   { id: "playlists", label: "PLAYLISTS", icon: "≡" },
   { id: "events", label: "EVENTS", icon: "⚡" },
-  { id: "preview", label: "LIVE PREVIEW", icon: "◉" },
-  { id: "monitor", label: "MONITOR", icon: "🖥️" },
+  { id: "monitor", label: "MONITOR & LIVE FEED", icon: "🖥️" },
 ]
 
 export default function Dashboard({ token, onLogout }) {
@@ -295,7 +293,6 @@ export default function Dashboard({ token, onLogout }) {
           {page === "ads" && <Ads token={token} />}
           {page === "playlists" && <Playlists token={token} />}
           {page === "events" && <Events token={token} />}
-          {page === "preview" && <LivePreview token={token} />}
           {page === "monitor" && <Monitor token={token} />}
         </div>
       </div>
