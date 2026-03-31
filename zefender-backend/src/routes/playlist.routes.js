@@ -15,8 +15,10 @@ router.post("/", verifyToken, validatePlaylistCreate, createOrUpdatePlaylist);
 router.put("/priority", verifyToken, validatePriorityUpdate, setPriority);
 router.delete("/priority", verifyToken, clearPriority);
 
+// Admin preview route — must be BEFORE /:device_id to avoid Express matching "preview" as device_id
+router.get("/preview/:device_id", verifyToken, getPlaylistByDevice);
+
 // Pi device route (device token protected)
-// Pi calls this to get its playlist and compare with local version
 router.get("/:device_id", verifyDeviceToken, getPlaylistByDevice);
 
 module.exports = router;

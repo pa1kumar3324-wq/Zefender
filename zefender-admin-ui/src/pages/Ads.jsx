@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react"
 import { api } from "../api"
 
-export default function Ads({ token }) {
+export default function Ads() {
   const [ads, setAds] = useState([])
   const [loading, setLoading] = useState(true)
   const [uploading, setUploading] = useState(false)
@@ -10,7 +10,7 @@ export default function Ads({ token }) {
   const [toast, setToast] = useState(null)
   const fileRef = useRef()
 
-  const client = api(token)
+  const client = api()
 
   const showToast = (msg, type = "ok") => {
     setToast({ msg, type })

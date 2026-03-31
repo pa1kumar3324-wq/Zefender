@@ -1,49 +1,45 @@
 import axios from "axios"
 
 const BASE = "/api"
-const DEVICE_SECRET = import.meta.env.VITE_DEVICE_SECRET || "zefender_device_secret_123"
 
-export const api = (token) => {
-  const authHeaders = token ? { Authorization: `Bearer ${token}` } : {}
-  const deviceHeaders = { "x-device-token": DEVICE_SECRET }
-
+// Auth removed temporarily — pending founder discussion
+export const api = (_token) => {
   return {
     // ── Ads ──────────────────────────────────────────────
     getAds: () =>
-      axios.get(`${BASE}/ads`, { headers: authHeaders }),
+      axios.get(`${BASE}/ads`),
 
     uploadAd: (formData) =>
-      axios.post(`${BASE}/ads`, formData, { headers: { ...authHeaders } }),
+      axios.post(`${BASE}/ads`, formData),
 
     deleteAd: (id) =>
-      axios.delete(`${BASE}/ads/${id}`, { headers: authHeaders }),
+      axios.delete(`${BASE}/ads/${id}`),
 
     toggleAd: (id) =>
-      axios.patch(`${BASE}/ads/${id}/toggle`, {}, { headers: authHeaders }),
+      axios.patch(`${BASE}/ads/${id}/toggle`, {}),
 
     // ── Playlists ─────────────────────────────────────────
     createPlaylist: (data) =>
-      axios.post(`${BASE}/playlists`, data, { headers: authHeaders }),
+      axios.post(`${BASE}/playlists`, data),
 
-    // getPlaylist is called by both device (Pi) and admin preview
-    // Use device token so Pi can also call it; admin uses the same shared secret
     getPlaylist: (deviceId) =>
-      axios.get(`${BASE}/playlists/${deviceId}`, { headers: deviceHeaders }),
+      axios.get(`${BASE}/playlists/preview/${deviceId}`),
 
     setPriority: (data) =>
-      axios.put(`${BASE}/playlists/priority`, data, { headers: authHeaders }),
+      axios.put(`${BASE}/playlists/priority`, data),
 
     clearPriority: (data) =>
-      axios.delete(`${BASE}/playlists/priority`, { headers: authHeaders, data }),
+      axios.delete(`${BASE}/playlists/priority`, { data }),
 
     // ── Devices ───────────────────────────────────────────
     getDevices: () =>
-      axios.get(`${BASE}/devices`, { headers: authHeaders }),
+      axios.get(`${BASE}/devices`),
+
+    registerDevice: (data) =>
+      axios.post(`${BASE}/devices/register`, data),
 
     // ── Events ────────────────────────────────────────────
-    // Admin-triggered payment simulation — uses admin JWT so the device secret
-    // never needs to be exposed in the browser
     triggerEvent: (deviceId) =>
-      axios.post(`${BASE}/events/admin`, { device_id: deviceId }, { headers: authHeaders }),
+      axios.post(`${BASE}/events/admin`, { device_id: deviceId }),
   }
 }
