@@ -96,8 +96,13 @@ export default function Playlists({ token }) {
         .pl-root { display: flex; flex-direction: column; gap: 22px; }
 
         .pl-card {
+<<<<<<< HEAD
           background: var(--card);
           border: 1px solid var(--border);
+=======
+          background: #0d0d18;
+          border: 1px solid rgba(99,102,241,0.12);
+>>>>>>> main
           border-radius: 12px;
           padding: 22px;
           animation: fadeUp 0.3s ease;
@@ -110,7 +115,11 @@ export default function Playlists({ token }) {
 
         .pl-section-title {
           font-size: 10px; letter-spacing: 0.2em;
+<<<<<<< HEAD
           color: var(--accent); font-family: 'Space Mono', monospace;
+=======
+          color: #6366f1; font-family: 'Space Mono', monospace;
+>>>>>>> main
           margin-bottom: 14px;
         }
 
@@ -120,11 +129,19 @@ export default function Playlists({ token }) {
         }
 
         .field-input {
+<<<<<<< HEAD
           background: var(--field);
           border: 1px solid var(--border);
           border-radius: 8px;
           padding: 10px 14px;
           color: var(--text);
+=======
+          background: #13131f;
+          border: 1px solid rgba(99,102,241,0.2);
+          border-radius: 8px;
+          padding: 10px 14px;
+          color: #e2e8f0;
+>>>>>>> main
           font-family: 'Space Mono', monospace;
           font-size: 12px;
           outline: none;
@@ -132,15 +149,24 @@ export default function Playlists({ token }) {
           flex: 1;
         }
 
+<<<<<<< HEAD
         .field-input:focus { border-color: var(--accent); }
         .field-input::placeholder { color: var(--text-muted); }
+=======
+        .field-input:focus { border-color: #6366f1; }
+        .field-input::placeholder { color: #3f3f5a; }
+>>>>>>> main
 
         .btn-fetch {
           background: rgba(99,102,241,0.1);
           border: 1px solid rgba(99,102,241,0.25);
           border-radius: 8px;
           padding: 10px 16px;
+<<<<<<< HEAD
           color: var(--accent);
+=======
+          color: #a5b4fc;
+>>>>>>> main
           font-family: 'Space Mono', monospace;
           font-size: 10px; letter-spacing: 0.1em;
           cursor: pointer;
@@ -148,7 +174,11 @@ export default function Playlists({ token }) {
           white-space: nowrap;
         }
 
+<<<<<<< HEAD
         .btn-fetch:hover { background: rgba(99,102,241,0.18); border-color: var(--accent); }
+=======
+        .btn-fetch:hover { background: rgba(99,102,241,0.18); border-color: #6366f1; }
+>>>>>>> main
 
         /* Ads checkboxes */
         .ads-check-grid {
@@ -160,8 +190,13 @@ export default function Playlists({ token }) {
 
         .ad-check-item {
           display: flex; align-items: center; gap: 10px;
+<<<<<<< HEAD
           background: var(--field);
           border: 1px solid var(--border);
+=======
+          background: #13131f;
+          border: 1px solid rgba(99,102,241,0.12);
+>>>>>>> main
           border-radius: 8px;
           padding: 10px 12px;
           cursor: pointer;
@@ -170,7 +205,11 @@ export default function Playlists({ token }) {
         }
 
         .ad-check-item:hover { border-color: rgba(99,102,241,0.3); }
+<<<<<<< HEAD
         .ad-check-item.selected { border-color: var(--accent); background: rgba(99,102,241,0.08); }
+=======
+        .ad-check-item.selected { border-color: #6366f1; background: rgba(99,102,241,0.08); }
+>>>>>>> main
 
         .check-box {
           width: 16px; height: 16px;
@@ -183,13 +222,22 @@ export default function Playlists({ token }) {
         }
 
         .check-box.checked {
+<<<<<<< HEAD
           background: var(--accent);
           border-color: var(--accent);
+=======
+          background: #6366f1;
+          border-color: #6366f1;
+>>>>>>> main
           color: white;
         }
 
         .btn-save {
+<<<<<<< HEAD
           background: linear-gradient(135deg, var(--accent), #8b5cf6);
+=======
+          background: linear-gradient(135deg, #6366f1, #8b5cf6);
+>>>>>>> main
           border: none; border-radius: 8px;
           padding: 10px 20px;
           color: white;
@@ -221,7 +269,11 @@ export default function Playlists({ token }) {
 
         /* Playlist display */
         .playlist-info {
+<<<<<<< HEAD
           background: var(--field);
+=======
+          background: #13131f;
+>>>>>>> main
           border: 1px solid rgba(16,185,129,0.2);
           border-radius: 10px;
           padding: 16px;
@@ -260,7 +312,11 @@ export default function Playlists({ token }) {
           background: rgba(99,102,241,0.15);
           border-radius: 50%;
           display: flex; align-items: center; justify-content: center;
+<<<<<<< HEAD
           font-size: 10px; color: var(--accent);
+=======
+          font-size: 10px; color: #a5b4fc;
+>>>>>>> main
           flex-shrink: 0;
         }
 
@@ -308,7 +364,11 @@ export default function Playlists({ token }) {
           </button>
         </div>
 
+<<<<<<< HEAD
         {loading && <div style={{ color: "var(--text-muted)", fontSize: 12 }}>Loading...</div>}
+=======
+        {loading && <div style={{ color: "#3f3f5a", fontSize: 12 }}>Loading...</div>}
+>>>>>>> main
 
         {playlist && (
           <div className="playlist-info">
@@ -350,7 +410,11 @@ export default function Playlists({ token }) {
                   {ad.title}
                 </span>
                 {sel && (
+<<<<<<< HEAD
                   <span style={{ marginLeft: "auto", fontSize: 10, color: "var(--accent)", flexShrink: 0 }}>
+=======
+                  <span style={{ marginLeft: "auto", fontSize: 10, color: "#6366f1", flexShrink: 0 }}>
+>>>>>>> main
                     #{sel.order_index}
                   </span>
                 )}

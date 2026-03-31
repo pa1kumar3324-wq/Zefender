@@ -10,7 +10,10 @@ dotenv.config();
 const adRoutes = require("./routes/ad.routes");
 const playlistRoutes = require("./routes/playlist.routes");
 const eventRoutes = require("./routes/event.routes");
+<<<<<<< HEAD
 const deviceRoutes = require("./routes/device.routes");
+=======
+>>>>>>> main
 
 const app = express();
 
@@ -25,7 +28,10 @@ app.use(express.urlencoded({ extended: true }));
 app.use("/api/ads", adRoutes);
 app.use("/api/playlists", playlistRoutes);
 app.use("/api/events", eventRoutes);
+<<<<<<< HEAD
 app.use("/api/devices", deviceRoutes);
+=======
+>>>>>>> main
 
 // Health check
 app.get("/", (req, res) => {

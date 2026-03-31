@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 {
   "sm-1-mmszmvt4": {
     "id": "sm-1-mmszmvt4",
@@ -6,4 +7,14 @@
     "port": 8080,
     "last_seen": 1773653728
   }
+=======
+{
+  "sm-1-mmszmvt4": {
+    "id": "sm-1-mmszmvt4",
+    "name": "sm-1",
+    "ip": "127.0.0.1",
+    "port": 8080,
+    "last_seen": 1773653728
+  }
+>>>>>>> main
 }

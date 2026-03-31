@@ -1,3 +1,19 @@
+<<<<<<< HEAD
+=======
+#!/usr/bin/env python3
+"""
+AdKiosk Pi Server
+Runs on each Raspberry Pi.
+- Serves the kiosk player (fullscreen video loop)
+- Accepts upload/delete/reorder commands from the central admin
+- Registers itself with the central admin server on startup
+
+EDIT THESE TWO LINES PER DEVICE:
+  ADMIN_SERVER = "http://<your-admin-machine-ip>:9090"
+  DEVICE_NAME  = "Lobby Screen"   (give each Pi a unique friendly name)
+"""
+
+>>>>>>> main
 import json
 import socket
 import threading
@@ -11,7 +27,11 @@ PORT        = 8080
 ALLOWED_EXT = {".mp4", ".mov", ".webm", ".avi", ".mkv", ".m4v"}
 
 # ---- EDIT THESE PER DEVICE --------------------------------------------------
+<<<<<<< HEAD
 ADMIN_SERVER = "http://127.0.0.1:5000"   # IP of the machine running backend server.js
+=======
+ADMIN_SERVER = "http://192.168.1.100:9090"   # IP of the machine running admin_server.py
+>>>>>>> main
 DEVICE_ID    = socket.gethostname()           # unique ID (hostname works fine)
 DEVICE_NAME  = "Display " + DEVICE_ID        # friendly label shown in admin panel
 # -----------------------------------------------------------------------------
