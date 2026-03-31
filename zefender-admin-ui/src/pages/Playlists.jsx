@@ -1,28 +1,50 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { api } from "../api"
 
-export default function Playlists({ token }) {
+export default function Playlists() {
   const [ads, setAds] = useState([])
-  const [deviceId, setDeviceId] = useState("machine-bangalore-001")
+  const [devices, setDevices] = useState([])
+  const [deviceId, setDeviceId] = useState("")
   const [playlist, setPlaylist] = useState(null)
   const [selectedAds, setSelectedAds] = useState([])
   const [priorityAds, setPriorityAds] = useState([])
   const [loading, setLoading] = useState(false)
   const [toast, setToast] = useState(null)
+  // custom dropdown
+  const [dropOpen, setDropOpen] = useState(false)
+  const [showNewDevice, setShowNewDevice] = useState(false)
+  const [newId, setNewId] = useState("")
+  const [newName, setNewName] = useState("")
+  const dropRef = useRef(null)
 
-  const client = api(token)
+  const client = api()
 
   const showToast = (msg, type = "ok") => {
     setToast({ msg, type })
     setTimeout(() => setToast(null), 3000)
   }
 
-  const loadAds = async () => {
-    try {
-      const res = await client.getAds()
-      setAds(res.data.filter(a => a.active))
-    } catch {}
-  }
+  useEffect(() => {
+    const init = async () => {
+      try {
+        const [adsRes, devicesRes] = await Promise.all([
+          client.getAds(),
+          client.getDevices(),
+        ])
+        setAds(adsRes.data.filter(a => a.active))
+        setDevices(devicesRes.data)
+        if (devicesRes.data.length > 0) setDeviceId(devicesRes.data[0].id)
+      } catch {
+        showToast("Failed to load data", "err")
+      }
+    }
+    init()
+  }, [])
+
+  // Auto-fetch playlist when device changes
+  useEffect(() => {
+    if (deviceId) loadPlaylist()
+  }, [deviceId])
 
   const loadPlaylist = async () => {
     if (!deviceId) return
@@ -36,7 +58,29 @@ export default function Playlists({ token }) {
     setLoading(false)
   }
 
-  useEffect(() => { loadAds() }, [])
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handler = (e) => { if (dropRef.current && !dropRef.current.contains(e.target)) setDropOpen(false) }
+    document.addEventListener("mousedown", handler)
+    return () => document.removeEventListener("mousedown", handler)
+  }, [])
+
+  const handleAddDevice = async () => {
+    if (!newId.trim() || !newName.trim()) return showToast("ID and name required", "err")
+    try {
+      await client.registerDevice({ id: newId.trim(), name: newName.trim() })
+      const res = await client.getDevices()
+      setDevices(res.data)
+      setDeviceId(newId.trim())
+      setNewId(""); setNewName("")
+      setShowNewDevice(false); setDropOpen(false)
+      showToast(`Device "${newName.trim()}" added`)
+    } catch (err) {
+      showToast(err.response?.data?.message || "Failed to add device", "err")
+    }
+  }
+
+  const selectedDeviceName = devices.find(d => d.id === deviceId)?.name || deviceId
 
   const toggleAdSelect = (ad) => {
     setSelectedAds(prev =>
@@ -117,9 +161,14 @@ export default function Playlists({ token }) {
         .device-row {
           display: flex; gap: 10px; align-items: center;
           margin-bottom: 16px;
+          position: relative;
         }
 
-        .field-input {
+        /* Custom dropdown */
+        .dev-dropdown { position: relative; flex: 1; }
+
+        .dev-trigger {
+          width: 100%;
           background: var(--field);
           border: 1px solid var(--border);
           border-radius: 8px;
@@ -127,13 +176,92 @@ export default function Playlists({ token }) {
           color: var(--text);
           font-family: 'Space Mono', monospace;
           font-size: 12px;
-          outline: none;
+          cursor: pointer;
+          display: flex; align-items: center; justify-content: space-between;
           transition: border-color 0.2s;
-          flex: 1;
+          text-align: left;
+        }
+        .dev-trigger:hover, .dev-trigger.open { border-color: var(--accent); }
+
+        .dev-menu {
+          position: absolute; top: calc(100% + 6px); left: 0; right: 0;
+          background: var(--card);
+          border: 1px solid var(--border);
+          border-radius: 10px;
+          overflow: hidden;
+          z-index: 100;
+          box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+          animation: fadeUp 0.15s ease;
         }
 
-        .field-input:focus { border-color: var(--accent); }
-        .field-input::placeholder { color: var(--text-muted); }
+        .dev-option {
+          padding: 10px 14px;
+          cursor: pointer;
+          font-size: 12px;
+          font-family: 'Space Mono', monospace;
+          transition: background 0.1s;
+          border-bottom: 1px solid rgba(99,102,241,0.05);
+        }
+        .dev-option:hover { background: rgba(99,102,241,0.08); }
+        .dev-option.active { color: var(--accent); background: rgba(99,102,241,0.06); }
+        .dev-option-sub { font-size: 9px; color: var(--text-muted); margin-top: 2px; }
+
+        .dev-add-option {
+          padding: 10px 14px;
+          cursor: pointer;
+          font-size: 11px;
+          font-family: 'Space Mono', monospace;
+          color: var(--accent);
+          display: flex; align-items: center; gap: 8px;
+          transition: background 0.1s;
+          border-top: 1px solid var(--border);
+        }
+        .dev-add-option:hover { background: rgba(99,102,241,0.08); }
+
+        .new-device-form {
+          padding: 12px 14px;
+          display: flex; flex-direction: column; gap: 8px;
+          border-top: 1px solid var(--border);
+          background: rgba(99,102,241,0.03);
+        }
+
+        .nd-input {
+          background: var(--field);
+          border: 1px solid var(--border);
+          border-radius: 7px;
+          padding: 8px 12px;
+          color: var(--text);
+          font-family: 'Space Mono', monospace;
+          font-size: 11px; outline: none;
+          transition: border-color 0.15s;
+          width: 100%;
+        }
+        .nd-input:focus { border-color: var(--accent); }
+        .nd-input::placeholder { color: var(--text-muted); }
+
+        .nd-row { display: flex; gap: 6px; }
+
+        .nd-confirm {
+          flex: 1;
+          background: linear-gradient(135deg, var(--accent), #8b5cf6);
+          border: none; border-radius: 7px;
+          padding: 8px; color: white;
+          font-family: 'Space Mono', monospace;
+          font-size: 10px; font-weight: 700;
+          cursor: pointer; transition: opacity 0.15s;
+        }
+        .nd-confirm:hover { opacity: 0.85; }
+
+        .nd-cancel {
+          background: none;
+          border: 1px solid var(--border);
+          border-radius: 7px;
+          padding: 8px 12px; color: var(--text-muted);
+          font-family: 'Space Mono', monospace;
+          font-size: 10px; cursor: pointer;
+          transition: all 0.15s;
+        }
+        .nd-cancel:hover { border-color: #f87171; color: #f87171; }
 
         .btn-fetch {
           background: rgba(99,102,241,0.1);
@@ -297,12 +425,57 @@ export default function Playlists({ token }) {
       <div className="pl-card">
         <div className="pl-section-title">DEVICE</div>
         <div className="device-row">
-          <input
-            className="field-input"
-            value={deviceId}
-            onChange={e => setDeviceId(e.target.value)}
-            placeholder="e.g. machine-bangalore-001"
-          />
+          <div className="dev-dropdown" ref={dropRef}>
+            <button
+              className={`dev-trigger ${dropOpen ? "open" : ""}`}
+              onClick={() => { setDropOpen(o => !o); setShowNewDevice(false) }}
+            >
+              <span>{deviceId ? selectedDeviceName : "Select a device..."}</span>
+              <span style={{ fontSize: 10, opacity: 0.5 }}>{dropOpen ? "▲" : "▼"}</span>
+            </button>
+
+            {dropOpen && (
+              <div className="dev-menu">
+                {devices.map(d => (
+                  <div
+                    key={d.id}
+                    className={`dev-option ${d.id === deviceId ? "active" : ""}`}
+                    onClick={() => { setDeviceId(d.id); setDropOpen(false); setShowNewDevice(false) }}
+                  >
+                    <div>{d.name}</div>
+                    <div className="dev-option-sub">{d.id}</div>
+                  </div>
+                ))}
+
+                {!showNewDevice ? (
+                  <div className="dev-add-option" onClick={() => setShowNewDevice(true)}>
+                    ＋ Add New Device
+                  </div>
+                ) : (
+                  <div className="new-device-form">
+                    <input
+                      className="nd-input"
+                      placeholder="Device ID  (e.g. vm-delhi-001)"
+                      value={newId}
+                      onChange={e => setNewId(e.target.value)}
+                      autoFocus
+                    />
+                    <input
+                      className="nd-input"
+                      placeholder="Display name  (e.g. Delhi Mall #1)"
+                      value={newName}
+                      onChange={e => setNewName(e.target.value)}
+                    />
+                    <div className="nd-row">
+                      <button className="nd-confirm" onClick={handleAddDevice}>CREATE</button>
+                      <button className="nd-cancel" onClick={() => { setShowNewDevice(false); setNewId(""); setNewName("") }}>CANCEL</button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+
           <button className="btn-fetch" onClick={loadPlaylist}>
             FETCH PLAYLIST
           </button>

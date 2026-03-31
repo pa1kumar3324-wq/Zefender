@@ -11,7 +11,7 @@ const NAV = [
   { id: "monitor", label: "MONITOR & LIVE FEED", icon: "🖥️" },
 ]
 
-export default function Dashboard({ token, onLogout }) {
+export default function Dashboard() {
   const [page, setPage] = useState("ads")
   const [theme, setTheme] = useState("dark")
 
@@ -264,9 +264,7 @@ export default function Dashboard({ token, onLogout }) {
         ))}
 
         <div className="sidebar-bottom">
-          <button className="logout-btn" onClick={onLogout}>
-            ✕ LOGOUT
-          </button>
+          {/* Logout removed — auth pending founder discussion */}
         </div>
       </div>
 
@@ -290,10 +288,10 @@ export default function Dashboard({ token, onLogout }) {
         </div>
 
         <div className="page-body">
-          {page === "ads" && <Ads token={token} />}
-          {page === "playlists" && <Playlists token={token} />}
-          {page === "events" && <Events token={token} />}
-          {page === "monitor" && <Monitor token={token} />}
+          {page === "ads" && <Ads />}
+          {page === "playlists" && <Playlists />}
+          {page === "events" && <Events />}
+          {page === "monitor" && <Monitor />}
         </div>
       </div>
     </div>
