@@ -2,7 +2,6 @@ import { useState, useEffect, useRef } from "react"
 import { api } from "../api"
 
 export default function Monitor() {
-  const [ads, setAds] = useState([])
   const [devices, setDevices] = useState([])
   const [selectedDevice, setSelectedDevice] = useState(null)
   const [priorityAds, setPriorityAds] = useState([])
@@ -18,6 +17,7 @@ export default function Monitor() {
   const [mode, setMode] = useState("playlist")   // "playlist" | "priority"
   const [queue, setQueue] = useState([])          // current playing list
   const [currentIndex, setCurrentIndex] = useState(0)
+  const [playerKey, setPlayerKey] = useState(0)  // force remount when same url plays again
 
   const timerRef = useRef(null)
   const client = api()
@@ -32,8 +32,7 @@ export default function Monitor() {
     const fetchData = async () => {
       setLoading(true)
       try {
-        const [adsRes, devicesRes] = await Promise.all([client.getAds(), client.getDevices()])
-        setAds(adsRes.data)
+        const devicesRes = await client.getDevices()
         const devList = devicesRes.data
         setDevices(devList)
         if (devList.length > 0) setSelectedDevice(devList[0].id)
@@ -66,7 +65,8 @@ export default function Monitor() {
       if (playlistRes.status === "fulfilled" && playlistRes.value.data?.ads?.length > 0) {
         const pl = playlistRes.value.data
         setPlaylist(pl)
-        setQueue(pl.ads)
+        const activeAds = pl.ads.filter(a => a.active)
+        setQueue(activeAds)
         setCurrentIndex(0)
         setMode("playlist")
       }
@@ -93,13 +93,16 @@ export default function Monitor() {
     setCurrentIndex(prev => {
       const next = prev + 1
       if (next >= queue.length) {
-        // priority queue finished → back to playlist
         if (mode === "priority" && playlist) {
+          // priority finished → back to playlist, force remount so same-url ads replay
           setMode("playlist")
-          setQueue(playlist.ads)
+          setQueue(playlist.ads.filter(a => a.active))
+          setPlayerKey(k => k + 1)
           return 0
         }
-        return 0  // loop playlist
+        // playlist looped back — also force remount in case first === last
+        setPlayerKey(k => k + 1)
+        return 0
       }
       return next
     })
@@ -129,6 +132,7 @@ export default function Monitor() {
         setMode("priority")
         setQueue(pAds)
         setCurrentIndex(0)
+        setPlayerKey(k => k + 1)
         setSimulating(false)
       }, 1500)
 
@@ -349,19 +353,23 @@ export default function Monitor() {
 
         {/* 2. Ad status board */}
         <div className="card">
-          <div className="card-title">AD STATUS BOARD</div>
+          <div className="card-title">
+            AD STATUS BOARD
+            {selectedDeviceObj && <span style={{ color: "var(--text-muted)", fontSize: 9 }}>{selectedDeviceObj.name}</span>}
+          </div>
           {loading ? <div className="empty-msg">Loading ads...</div> : (
             <table className="ad-table">
               <thead><tr><th>TITLE</th><th>TYPE</th><th>STATUS</th></tr></thead>
               <tbody>
-                {ads.map(ad => (
+                {playlist?.ads?.length > 0 ? playlist.ads.map(ad => (
                   <tr key={ad.id}>
                     <td>{ad.title}</td>
                     <td style={{ opacity: 0.5 }}>{ad.file_url.split(".").pop().toUpperCase()}</td>
                     <td><span className={`status-pill ${ad.active ? "status-active" : "status-inactive"}`}>{ad.active ? "● ACTIVE" : "○ INACTIVE"}</span></td>
                   </tr>
-                ))}
-                {ads.length === 0 && <tr><td colSpan="3" className="empty-msg">No ads uploaded yet</td></tr>}
+                )) : (
+                  <tr><td colSpan="3" className="empty-msg">No playlist for this device</td></tr>
+                )}
               </tbody>
             </table>
           )}
@@ -415,10 +423,10 @@ export default function Monitor() {
                   src={adUrl}
                   autoPlay muted
                   onEnded={advancePlayer}
-                  key={adUrl}
+                  key={`${playerKey}-${adUrl}`}
                 />
               ) : (
-                <img className="player-media" src={adUrl} alt={currentAd?.title} key={adUrl} />
+                <img className="player-media" src={adUrl} alt={currentAd?.title} key={`${playerKey}-${adUrl}`} />
               )}
 
               {/* mode badge */}
