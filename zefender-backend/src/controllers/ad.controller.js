@@ -1,4 +1,5 @@
 const Ad = require("../models/ad.model");
+const PlaylistItem = require("../models/playlistItem.model");
 const { uploadToR2, deleteFromR2 } = require("../config/r2");
 
 // POST /api/ads
@@ -45,7 +46,10 @@ const deleteAd = async (req, res) => {
       return res.status(404).json({ message: "Ad not found" });
     }
 
-    // Delete from R2 first then DB
+    // Remove from any playlists first to avoid FK constraint errors
+    await PlaylistItem.destroy({ where: { ad_id: ad.id } });
+
+    // Delete file then DB record
     await deleteFromR2(ad.file_url);
     await ad.destroy();
 
