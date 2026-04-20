@@ -18,8 +18,10 @@ export default function Monitor() {
   const [queue, setQueue] = useState([])          // current playing list
   const [currentIndex, setCurrentIndex] = useState(0)
   const [playerKey, setPlayerKey] = useState(0)  // force remount when same url plays again
+  const [priorityCursor, setPriorityCursor] = useState(0) // which priority ad is next (cyclic)
 
   const timerRef = useRef(null)
+  const playerWrapRef = useRef(null)
   const client = api()
 
   const showToast = (msg, type = "ok") => {
@@ -52,6 +54,7 @@ export default function Monitor() {
     setQueue([])
     setCurrentIndex(0)
     setMode("playlist")
+    setPriorityCursor(0)
     autoLoad(selectedDevice)
   }, [selectedDevice])
 
@@ -125,12 +128,16 @@ export default function Monitor() {
         return
       }
 
-      // Show payment flash for 1.5s then switch player to priority queue
+      // Pick the current ad in the cycle, then advance cursor for next payment
+      const adToPlay = pAds[priorityCursor % pAds.length]
+      setPriorityCursor(c => (c + 1) % pAds.length)
+
+      // Show payment flash for 1.5s then play just that one priority ad
       setShowPaymentFlash(true)
       setTimeout(() => {
         setShowPaymentFlash(false)
         setMode("priority")
-        setQueue(pAds)
+        setQueue([adToPlay])   // only ONE ad in the queue
         setCurrentIndex(0)
         setPlayerKey(k => k + 1)
         setSimulating(false)
@@ -248,6 +255,20 @@ export default function Monitor() {
           border: 1px solid var(--border); box-shadow: 0 8px 24px rgba(0,0,0,0.5);
         }
         .player-wrap.priority-mode { border-color: rgba(245,158,11,0.5); box-shadow: 0 0 30px rgba(245,158,11,0.15); }
+
+        .fullscreen-btn {
+          position: absolute; top: 12px; left: 12px;
+          background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.15);
+          border-radius: 6px; padding: 5px 10px;
+          color: rgba(255,255,255,0.7); font-family: 'Space Mono', monospace;
+          font-size: 10px; cursor: pointer; transition: all 0.15s;
+          z-index: 5;
+        }
+        .fullscreen-btn:hover { background: rgba(0,0,0,0.8); color: #fff; border-color: rgba(255,255,255,0.4); }
+
+        /* When actually fullscreen, make media fill the screen */
+        .player-wrap:fullscreen { border-radius: 0; aspect-ratio: unset; width: 100vw; height: 100vh; }
+        .player-wrap:fullscreen .player-media { object-fit: contain; width: 100%; height: 100%; }
 
         .player-media { width: 100%; height: 100%; object-fit: contain; }
 
@@ -416,7 +437,7 @@ export default function Monitor() {
 
         {queue.length > 0 ? (
           <>
-            <div className={`player-wrap ${mode === "priority" ? "priority-mode" : ""}`}>
+            <div className={`player-wrap ${mode === "priority" ? "priority-mode" : ""}`} ref={playerWrapRef}>
               {isVideo ? (
                 <video
                   className="player-media"
@@ -428,6 +449,15 @@ export default function Monitor() {
               ) : (
                 <img className="player-media" src={adUrl} alt={currentAd?.title} key={`${playerKey}-${adUrl}`} />
               )}
+
+              {/* fullscreen button */}
+              <button
+                className="fullscreen-btn"
+                onClick={() => {
+                  if (!document.fullscreenElement) playerWrapRef.current?.requestFullscreen()
+                  else document.exitFullscreen()
+                }}
+              >⛶ FULLSCREEN</button>
 
               {/* mode badge */}
               <div className={`mode-badge ${mode}`}>
