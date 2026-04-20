@@ -1,13 +1,11 @@
 import { useState } from "react"
 import Ads from "./Ads"
 import Playlists from "./Playlists"
-import Events from "./Events"
 import Monitor from "./Monitor"
 
 const NAV = [
   { id: "ads", label: "ADS", icon: "▦" },
   { id: "playlists", label: "PLAYLISTS", icon: "≡" },
-  { id: "events", label: "EVENTS", icon: "⚡" },
   { id: "monitor", label: "MONITOR & LIVE FEED", icon: "🖥️" },
 ]
 
@@ -290,7 +288,6 @@ export default function Dashboard() {
         <div className="page-body">
           {page === "ads" && <Ads />}
           {page === "playlists" && <Playlists />}
-          {page === "events" && <Events />}
           {page === "monitor" && <Monitor />}
         </div>
       </div>
