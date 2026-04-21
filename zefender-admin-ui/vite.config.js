@@ -11,7 +11,7 @@ export default defineConfig({
     proxy: {
       // All /api requests → backend Express server
       '/api': {
-        target: 'http://localhost:5000',
+        target: 'http://172.16.0.36:5000',
         changeOrigin: true,
       },
       // Ad media files served from /uploads on the backend
