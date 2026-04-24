@@ -1,6 +1,9 @@
 const Ad = require("../models/ad.model");
 const PlaylistItem = require("../models/playlistItem.model");
+const Playlist = require("../models/playlist.model");
+const User = require("../models/user.model");
 const { uploadToR2, deleteFromR2 } = require("../config/r2");
+const { Op } = require("sequelize");
 
 // POST /api/ads
 // Admin uploads a new ad video/image
@@ -27,10 +30,39 @@ const uploadAd = async (req, res) => {
 };
 
 // GET /api/ads
-// Admin gets all uploaded ads
+// Superadmin → all ads
+// Admin → only ads that appear in playlists for their assigned devices
 const getAllAds = async (req, res) => {
   try {
-    const ads = await Ad.findAll();
+    // If no user on request (auth disabled) or superadmin → return all
+    if (!req.user || req.user.role === "superadmin") {
+      const ads = await Ad.findAll();
+      return res.json(ads);
+    }
+
+    // Admin — fetch their allowed_devices from DB
+    const user = await User.findByPk(req.user.id, { attributes: ["allowed_devices"] });
+    const allowedDevices = user?.allowed_devices || [];
+
+    if (allowedDevices.length === 0) return res.json([]);
+
+    // Find playlists for those devices
+    const playlists = await Playlist.findAll({
+      where: { device_id: { [Op.in]: allowedDevices } },
+      attributes: ["id"],
+    });
+    const playlistIds = playlists.map(p => p.id);
+    if (playlistIds.length === 0) return res.json([]);
+
+    // Find unique ad IDs in those playlists
+    const items = await PlaylistItem.findAll({
+      where: { playlist_id: { [Op.in]: playlistIds } },
+      attributes: ["ad_id"],
+    });
+    const adIds = [...new Set(items.map(i => i.ad_id))];
+    if (adIds.length === 0) return res.json([]);
+
+    const ads = await Ad.findAll({ where: { id: { [Op.in]: adIds } } });
     res.json(ads);
   } catch (err) {
     res.status(500).json({ message: "Server error", error: err.message });

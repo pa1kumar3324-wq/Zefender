@@ -2,18 +2,27 @@ import { useState } from "react"
 import Ads from "./Ads"
 import Playlists from "./Playlists"
 import Monitor from "./Monitor"
+import AdminSettings from "./AdminSettings"
 
-const NAV = [
-  { id: "ads", label: "ADS", icon: "▦" },
-  { id: "playlists", label: "PLAYLISTS", icon: "≡" },
-  { id: "monitor", label: "MONITOR & LIVE FEED", icon: "🖥️" },
+const SUPERADMIN_NAV = [
+  { id: "ads",      label: "ADS",               icon: "▦"  },
+  { id: "playlists",label: "PLAYLISTS",          icon: "≡"  },
+  { id: "monitor",  label: "MONITOR & LIVE FEED",icon: "🖥️" },
+  { id: "settings", label: "ADMIN SETTINGS",     icon: "⚙"  },
 ]
 
-export default function Dashboard() {
-  const [page, setPage] = useState("ads")
+const ADMIN_NAV = [
+  { id: "playlists",label: "PLAYLISTS",          icon: "≡"  },
+  { id: "monitor",  label: "MONITOR & LIVE FEED",icon: "🖥️" },
+]
+
+export default function Dashboard({ role, onLogout }) {
+  const [page, setPage] = useState(role === "admin" ? "playlists" : "ads")
   const [theme, setTheme] = useState("dark")
 
   const toggleTheme = () => setTheme(t => t === "dark" ? "light" : "dark")
+
+  const nav = role === "superadmin" ? SUPERADMIN_NAV : ADMIN_NAV
 
   return (
     <div className={`dash-root ${theme === "light" ? "light-theme" : ""}`}>
@@ -250,7 +259,7 @@ export default function Dashboard() {
         </div>
 
         <div className="nav-section">NAVIGATION</div>
-        {NAV.map(n => (
+        {nav.map(n => (
           <div
             key={n.id}
             className={`nav-item ${page === n.id ? "active" : ""}`}
@@ -262,7 +271,12 @@ export default function Dashboard() {
         ))}
 
         <div className="sidebar-bottom">
-          {/* Logout removed — auth pending founder discussion */}
+          <div style={{ fontSize: 9, color: "var(--text-muted)", letterSpacing: "0.15em", marginBottom: 10 }}>
+            {role?.toUpperCase()}
+          </div>
+          <button className="logout-btn" onClick={onLogout}>
+            ✕ LOGOUT
+          </button>
         </div>
       </div>
 
@@ -270,8 +284,8 @@ export default function Dashboard() {
       <div className="main">
         <div className="topbar">
           <div className="topbar-title">
-            {NAV.find(n => n.id === page)?.icon} &nbsp;
-            {NAV.find(n => n.id === page)?.label}
+            {nav.find(n => n.id === page)?.icon} &nbsp;
+            {nav.find(n => n.id === page)?.label}
           </div>
           <div className="topbar-right">
             <button className="theme-toggle" onClick={toggleTheme} title="Switch Theme">
@@ -286,9 +300,10 @@ export default function Dashboard() {
         </div>
 
         <div className="page-body">
-          {page === "ads" && <Ads />}
+          {page === "ads"      && <Ads />}
           {page === "playlists" && <Playlists />}
-          {page === "monitor" && <Monitor />}
+          {page === "monitor"   && <Monitor />}
+          {page === "settings"  && <AdminSettings />}
         </div>
       </div>
     </div>
