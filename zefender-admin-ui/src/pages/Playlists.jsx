@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react"
 import { api } from "../api"
+import { filterDevicesByRole, isSuperAdmin } from "../utils/auth"
 
 export default function Playlists() {
   const [ads, setAds] = useState([])
@@ -32,8 +33,10 @@ export default function Playlists() {
           client.getDevices(),
         ])
         setAds(adsRes.data.filter(a => a.active))
-        setDevices(devicesRes.data)
-        if (devicesRes.data.length > 0) setDeviceId(devicesRes.data[0].id)
+        const allDevices = devicesRes.data
+        const visible = filterDevicesByRole(allDevices)
+        setDevices(visible)
+        if (visible.length > 0) setDeviceId(visible[0].id)
       } catch {
         showToast("Failed to load data", "err")
       }
@@ -448,9 +451,11 @@ export default function Playlists() {
                 ))}
 
                 {!showNewDevice ? (
-                  <div className="dev-add-option" onClick={() => setShowNewDevice(true)}>
-                    ＋ Add New Device
-                  </div>
+                  isSuperAdmin() && (
+                    <div className="dev-add-option" onClick={() => setShowNewDevice(true)}>
+                      ＋ Add New Device
+                    </div>
+                  )
                 ) : (
                   <div className="new-device-form">
                     <input
