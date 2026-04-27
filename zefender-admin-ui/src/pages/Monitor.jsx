@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react"
 import { api } from "../api"
+import { filterDevicesByRole, isSuperAdmin } from "../utils/auth"
 
 export default function Monitor() {
   const [devices, setDevices] = useState([])
@@ -35,7 +36,7 @@ export default function Monitor() {
       setLoading(true)
       try {
         const devicesRes = await client.getDevices()
-        const devList = devicesRes.data
+        const devList = filterDevicesByRole(devicesRes.data)
         setDevices(devList)
         if (devList.length > 0) setSelectedDevice(devList[0].id)
       } catch {
@@ -368,7 +369,9 @@ export default function Monitor() {
               </div>
             </div>
           ) : (
-            <button className="btn-add-device" onClick={() => setShowAddDevice(true)}>+ NEW DEVICE</button>
+            isSuperAdmin() && (
+              <button className="btn-add-device" onClick={() => setShowAddDevice(true)}>+ NEW DEVICE</button>
+            )
           )}
         </div>
 
