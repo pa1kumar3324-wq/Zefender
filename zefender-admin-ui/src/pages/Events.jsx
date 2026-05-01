@@ -1,26 +1,18 @@
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { api } from "../api"
 
-export default function Events() {
-  const [devices, setDevices] = useState([])
-  const [deviceId, setDeviceId] = useState("")
+export default function Events({ token }) {
+  const [deviceId, setDeviceId] = useState("machine-bangalore-001")
   const [result, setResult] = useState(null)
   const [loading, setLoading] = useState(false)
   const [toast, setToast] = useState(null)
 
-  const client = api()
+  const client = api(token)
 
   const showToast = (msg, type = "ok") => {
     setToast({ msg, type })
     setTimeout(() => setToast(null), 3000)
   }
-
-  useEffect(() => {
-    client.getDevices().then(res => {
-      setDevices(res.data)
-      if (res.data.length > 0) setDeviceId(res.data[0].id)
-    }).catch(() => {})
-  }, [])
 
   const handleTrigger = async () => {
     if (!deviceId) return showToast("Enter device ID", "err")
@@ -42,8 +34,13 @@ export default function Events() {
         .ev-root { display: flex; flex-direction: column; gap: 22px; max-width: 680px; }
 
         .ev-card {
+<<<<<<< HEAD
           background: var(--card);
           border: 1px solid var(--border);
+=======
+          background: #0d0d18;
+          border: 1px solid rgba(99,102,241,0.12);
+>>>>>>> main
           border-radius: 12px;
           padding: 24px;
           animation: fadeUp 0.3s ease;
@@ -56,7 +53,11 @@ export default function Events() {
 
         .ev-title {
           font-size: 10px; letter-spacing: 0.2em;
+<<<<<<< HEAD
           color: var(--accent); font-family: 'Space Mono', monospace;
+=======
+          color: #6366f1; font-family: 'Space Mono', monospace;
+>>>>>>> main
           margin-bottom: 6px;
         }
 
@@ -68,19 +69,30 @@ export default function Events() {
         .ev-row { display: flex; gap: 10px; align-items: center; }
 
         .field-input {
+<<<<<<< HEAD
           background: var(--field);
           border: 1px solid var(--border);
           border-radius: 8px;
           padding: 10px 14px;
           color: var(--text);
+=======
+          background: #13131f;
+          border: 1px solid rgba(99,102,241,0.2);
+          border-radius: 8px;
+          padding: 10px 14px;
+          color: #e2e8f0;
+>>>>>>> main
           font-family: 'Space Mono', monospace;
           font-size: 12px; outline: none;
           transition: border-color 0.2s;
           flex: 1;
-          cursor: pointer;
         }
 
+<<<<<<< HEAD
         .field-input:focus { border-color: var(--accent); }
+=======
+        .field-input:focus { border-color: #6366f1; }
+>>>>>>> main
 
         .trigger-btn {
           background: linear-gradient(135deg, #f59e0b, #ef4444);
@@ -120,7 +132,11 @@ export default function Events() {
 
         /* Result */
         .result-card {
+<<<<<<< HEAD
           background: var(--field);
+=======
+          background: #13131f;
+>>>>>>> main
           border: 1px solid rgba(245,158,11,0.2);
           border-radius: 10px;
           padding: 18px;
@@ -212,16 +228,12 @@ export default function Events() {
           In production, the payment server calls this automatically.
         </p>
         <div className="ev-row">
-          <select
+          <input
             className="field-input"
             value={deviceId}
             onChange={e => setDeviceId(e.target.value)}
-          >
-            {devices.length === 0 && <option value="">No devices registered</option>}
-            {devices.map(d => (
-              <option key={d.id} value={d.id}>{d.name} — {d.id}</option>
-            ))}
-          </select>
+            placeholder="device_id"
+          />
           <button
             className={`trigger-btn ${loading ? "loading" : ""}`}
             onClick={handleTrigger}

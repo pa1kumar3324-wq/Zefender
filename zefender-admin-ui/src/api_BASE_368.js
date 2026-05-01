@@ -21,9 +21,12 @@ export const api = (token) => {
     setPriority: (data) => axios.put(`${BASE}/playlists/priority`, data, { headers }),
     clearPriority: (data) => axios.delete(`${BASE}/playlists/priority`, { headers, data }),
 
+<<<<<<<<< Temporary merge branch 1
     // Devices
     getDevices: () => axios.get(`${BASE}/devices`, { headers }),
 
+=========
+>>>>>>>>> Temporary merge branch 2
     // Events
     triggerEvent: (deviceId) => axios.post(`${BASE}/events`, { device_id: deviceId }, {
       headers: { "x-device-token": import.meta.env.VITE_DEVICE_SECRET || "zefender_device_secret_123" }
