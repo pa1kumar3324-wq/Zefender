@@ -16,3 +16,4 @@ router.delete("/:id", verifyToken, deleteAd);
 router.patch("/:id/toggle", verifyToken, toggleAd);
 
 module.exports = router;
+ 
