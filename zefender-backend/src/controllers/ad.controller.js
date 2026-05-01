@@ -31,7 +31,7 @@ const uploadAd = async (req, res) => {
 
 // GET /api/ads
 // Superadmin → all ads
-// Admin → only ads that appear in playlists for their assigned devices
+// Admin → all ads they can manage
 const getAllAds = async (req, res) => {
   try {
     // If no user on request (auth disabled) or superadmin → return all
@@ -40,30 +40,9 @@ const getAllAds = async (req, res) => {
       return res.json(ads);
     }
 
-    // Admin — fetch their allowed_devices from DB
-    const user = await User.findByPk(req.user.id, { attributes: ["allowed_devices"] });
-    const allowedDevices = user?.allowed_devices || [];
-
-    if (allowedDevices.length === 0) return res.json([]);
-
-    // Find playlists for those devices
-    const playlists = await Playlist.findAll({
-      where: { device_id: { [Op.in]: allowedDevices } },
-      attributes: ["id"],
-    });
-    const playlistIds = playlists.map(p => p.id);
-    if (playlistIds.length === 0) return res.json([]);
-
-    // Find unique ad IDs in those playlists
-    const items = await PlaylistItem.findAll({
-      where: { playlist_id: { [Op.in]: playlistIds } },
-      attributes: ["ad_id"],
-    });
-    const adIds = [...new Set(items.map(i => i.ad_id))];
-    if (adIds.length === 0) return res.json([]);
-
-    const ads = await Ad.findAll({ where: { id: { [Op.in]: adIds } } });
-    res.json(ads);
+    // Admins can manage all ads, including those provided by superadmin.
+    const ads = await Ad.findAll();
+    return res.json(ads);
   } catch (err) {
     res.status(500).json({ message: "Server error", error: err.message });
   }
