@@ -15,15 +15,14 @@ const uploadAd = async (req, res) => {
       return res.status(400).json({ message: "No file uploaded" });
     }
 
-    // Upload to R2 and get back the key
     const file_url = await uploadToR2(req.file);
 
-    const ad = await Ad.create({ title, file_url });
+    // Stamp who uploaded it — null for superadmin (no JWT user id)
+    const uploaded_by = req.user?.role === "admin" ? req.user.id : null;
 
-    res.status(201).json({
-      message: "Ad uploaded successfully",
-      ad,
-    });
+    const ad = await Ad.create({ title, file_url, uploaded_by });
+
+    res.status(201).json({ message: "Ad uploaded successfully", ad });
   } catch (err) {
     res.status(500).json({ message: "Server error", error: err.message });
   }
@@ -31,18 +30,15 @@ const uploadAd = async (req, res) => {
 
 // GET /api/ads
 // Superadmin → all ads
-// Admin → all ads they can manage
+// Admin → only ads they uploaded (uploaded_by = their user id)
 const getAllAds = async (req, res) => {
   try {
-    // If no user on request (auth disabled) or superadmin → return all
     if (!req.user || req.user.role === "superadmin") {
-      const ads = await Ad.findAll();
-      return res.json(ads);
+      return res.json(await Ad.findAll());
     }
 
-    // Admins can manage all ads, including those provided by superadmin.
-    const ads = await Ad.findAll();
-    return res.json(ads);
+    // Admin sees only their own uploads
+    return res.json(await Ad.findAll({ where: { uploaded_by: req.user.id } }));
   } catch (err) {
     res.status(500).json({ message: "Server error", error: err.message });
   }

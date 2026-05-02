@@ -12,12 +12,13 @@ const SUPERADMIN_NAV = [
 ]
 
 const ADMIN_NAV = [
+  { id: "ads",      label: "ADS",               icon: "▦"  },
   { id: "playlists",label: "PLAYLISTS",          icon: "≡"  },
   { id: "monitor",  label: "MONITOR & LIVE FEED",icon: "🖥️" },
 ]
 
 export default function Dashboard({ role, onLogout }) {
-  const [page, setPage] = useState(role === "admin" ? "playlists" : "ads")
+  const [page, setPage] = useState(role === "admin" ? "ads" : "ads")
   const [theme, setTheme] = useState("dark")
 
   const toggleTheme = () => setTheme(t => t === "dark" ? "light" : "dark")

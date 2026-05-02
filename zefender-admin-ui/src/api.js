@@ -1,32 +1,70 @@
 import axios from "axios"
 
 const BASE = "/api"
+const DEVICE_SECRET = import.meta.env.VITE_DEVICE_SECRET || "zefender_device_secret_123"
 
-export const api = (token) => {
-  const headers = token ? { Authorization: `Bearer ${token}` } : {}
+// Always reads the latest token from localStorage — no stale closures
+const authHeader = () => {
+  const token = localStorage.getItem("zef_token")
+  return token ? { Authorization: `Bearer ${token}` } : {}
+}
+
+export const api = () => {
   return {
-    // Ads
-    getAds: () => axios.get(`${BASE}/ads`, { headers }),
-    uploadAd: (formData) => axios.post(`${BASE}/ads`, formData, {
-      headers: { ...headers }
-    }),
-    deleteAd: (id) => axios.delete(`${BASE}/ads/${id}`, { headers }),
-    toggleAd: (id) => axios.patch(`${BASE}/ads/${id}/toggle`, {}, { headers }),
+    // ── Auth ─────────────────────────────────────────────
+    login: (data) =>
+      axios.post(`${BASE}/auth/login`, data),
 
-    // Playlists
-    createPlaylist: (data) => axios.post(`${BASE}/playlists`, data, { headers }),
-    getPlaylist: (deviceId) => axios.get(`${BASE}/playlists/${deviceId}`, {
-  headers: { "x-device-token": "zefender_device_secret_123" }
-}),
-    setPriority: (data) => axios.put(`${BASE}/playlists/priority`, data, { headers }),
-    clearPriority: (data) => axios.delete(`${BASE}/playlists/priority`, { headers, data }),
+    registerAdmin: (data) =>
+      axios.post(`${BASE}/auth/register`, data, { headers: authHeader() }),
 
-    // Devices
-    getDevices: () => axios.get(`${BASE}/devices`, { headers }),
+    getAdmins: () =>
+      axios.get(`${BASE}/auth/admins`, { headers: authHeader() }),
 
-    // Events
-    triggerEvent: (deviceId) => axios.post(`${BASE}/events`, { device_id: deviceId }, {
-      headers: { "x-device-token": import.meta.env.VITE_DEVICE_SECRET || "zefender_device_secret_123" }
-    }),
+    deleteAdmin: (id) =>
+      axios.delete(`${BASE}/auth/admins/${id}`, { headers: authHeader() }),
+
+    assignDevices: (adminId, deviceIds) =>
+      axios.put(`${BASE}/auth/admins/${adminId}/devices`, { device_ids: deviceIds }, { headers: authHeader() }),
+
+    getMyDevices: () =>
+      axios.get(`${BASE}/auth/me/devices`, { headers: authHeader() }),
+
+    // ── Ads ──────────────────────────────────────────────
+    getAds: () =>
+      axios.get(`${BASE}/ads`, { headers: authHeader() }),
+
+    uploadAd: (formData) =>
+      axios.post(`${BASE}/ads`, formData, { headers: authHeader() }),
+
+    deleteAd: (id) =>
+      axios.delete(`${BASE}/ads/${id}`, { headers: authHeader() }),
+
+    toggleAd: (id) =>
+      axios.patch(`${BASE}/ads/${id}/toggle`, {}, { headers: authHeader() }),
+
+    // ── Playlists ─────────────────────────────────────────
+    createPlaylist: (data) =>
+      axios.post(`${BASE}/playlists`, data, { headers: authHeader() }),
+
+    getPlaylist: (deviceId) =>
+      axios.get(`${BASE}/playlists/preview/${deviceId}`, { headers: authHeader() }),
+
+    setPriority: (data) =>
+      axios.put(`${BASE}/playlists/priority`, data, { headers: authHeader() }),
+
+    clearPriority: (data) =>
+      axios.delete(`${BASE}/playlists/priority`, { headers: authHeader(), data }),
+
+    // ── Devices ───────────────────────────────────────────
+    getDevices: () =>
+      axios.get(`${BASE}/devices`, { headers: authHeader() }),
+
+    registerDevice: (data) =>
+      axios.post(`${BASE}/devices/register`, data, { headers: authHeader() }),
+
+    // ── Events ────────────────────────────────────────────
+    triggerEvent: (deviceId) =>
+      axios.post(`${BASE}/events/admin`, { device_id: deviceId }, { headers: authHeader() }),
   }
 }
