@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react"
 import { api } from "../api"
 
-export default function Ads({ token }) {
+export default function Ads() {
   const [ads, setAds] = useState([])
   const [loading, setLoading] = useState(true)
   const [uploading, setUploading] = useState(false)
@@ -10,7 +10,7 @@ export default function Ads({ token }) {
   const [toast, setToast] = useState(null)
   const fileRef = useRef()
 
-  const client = api(token)
+  const client = api()
 
   const showToast = (msg, type = "ok") => {
     setToast({ msg, type })
@@ -77,11 +77,7 @@ export default function Ads({ token }) {
 
         .section-title {
           font-size: 10px; letter-spacing: 0.2em;
-<<<<<<< HEAD
           color: var(--accent); font-family: 'Space Mono', monospace;
-=======
-          color: #6366f1; font-family: 'Space Mono', monospace;
->>>>>>> main
         }
 
         .count-badge {
@@ -95,13 +91,8 @@ export default function Ads({ token }) {
 
         /* Upload card */
         .upload-card {
-<<<<<<< HEAD
           background: var(--card);
           border: 1px solid var(--border);
-=======
-          background: #0d0d18;
-          border: 1px solid rgba(99,102,241,0.15);
->>>>>>> main
           border-radius: 12px;
           padding: 22px;
           animation: fadeUp 0.3s ease;
@@ -123,7 +114,6 @@ export default function Ads({ token }) {
 
         .field-label {
           font-size: 9px; letter-spacing: 0.18em;
-<<<<<<< HEAD
           color: var(--accent); font-family: 'Space Mono', monospace;
         }
 
@@ -133,17 +123,6 @@ export default function Ads({ token }) {
           border-radius: 8px;
           padding: 10px 14px;
           color: var(--text);
-=======
-          color: #6366f1; font-family: 'Space Mono', monospace;
-        }
-
-        .field-input {
-          background: #13131f;
-          border: 1px solid rgba(99,102,241,0.2);
-          border-radius: 8px;
-          padding: 10px 14px;
-          color: #e2e8f0;
->>>>>>> main
           font-family: 'Space Mono', monospace;
           font-size: 12px;
           outline: none;
@@ -156,22 +135,13 @@ export default function Ads({ token }) {
 
         .file-label {
           display: flex; align-items: center; gap: 8px;
-<<<<<<< HEAD
           background: var(--field);
           border: 1px dashed var(--border);
-=======
-          background: #13131f;
-          border: 1px dashed rgba(99,102,241,0.3);
->>>>>>> main
           border-radius: 8px;
           padding: 10px 14px;
           cursor: pointer;
           font-size: 11px;
-<<<<<<< HEAD
           color: var(--text-muted);
-=======
-          color: #4f4f7a;
->>>>>>> main
           transition: all 0.2s;
           white-space: nowrap;
           overflow: hidden;
@@ -207,13 +177,8 @@ export default function Ads({ token }) {
         }
 
         .ad-card {
-<<<<<<< HEAD
           background: var(--card);
           border: 1px solid var(--border);
-=======
-          background: #0d0d18;
-          border: 1px solid rgba(99,102,241,0.12);
->>>>>>> main
           border-radius: 12px;
           padding: 18px;
           transition: border-color 0.2s, transform 0.15s;
@@ -245,11 +210,7 @@ export default function Ads({ token }) {
         .ad-title {
           font-family: 'Syne', sans-serif;
           font-size: 14px; font-weight: 800;
-<<<<<<< HEAD
           color: var(--text);
-=======
-          color: #e2e8f0;
->>>>>>> main
           word-break: break-word;
         }
 
@@ -273,11 +234,7 @@ export default function Ads({ token }) {
         }
 
         .ad-url {
-<<<<<<< HEAD
           font-size: 10px; color: var(--text-muted);
-=======
-          font-size: 10px; color: #3f3f5a;
->>>>>>> main
           font-family: 'Space Mono', monospace;
           overflow: hidden; text-overflow: ellipsis;
           white-space: nowrap;
@@ -318,13 +275,8 @@ export default function Ads({ token }) {
         /* Empty */
         .empty-state {
           text-align: center; padding: 60px 20px;
-<<<<<<< HEAD
           color: var(--text-muted); font-size: 12px; line-height: 2;
           border: 1px dashed var(--border);
-=======
-          color: #3f3f5a; font-size: 12px; line-height: 2;
-          border: 1px dashed rgba(99,102,241,0.1);
->>>>>>> main
           border-radius: 12px;
         }
 
@@ -336,11 +288,7 @@ export default function Ads({ token }) {
         }
 
         .skeleton {
-<<<<<<< HEAD
           background: linear-gradient(90deg, var(--card) 25%, var(--field) 50%, var(--card) 75%);
-=======
-          background: linear-gradient(90deg, #0d0d18 25%, #13131f 50%, #0d0d18 75%);
->>>>>>> main
           background-size: 200% 100%;
           animation: shimmer 1.5s infinite;
           border-radius: 12px;

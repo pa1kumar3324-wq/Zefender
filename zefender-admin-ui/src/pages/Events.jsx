@@ -1,13 +1,13 @@
 import { useState } from "react"
 import { api } from "../api"
 
-export default function Events({ token }) {
+export default function Events() {
   const [deviceId, setDeviceId] = useState("machine-bangalore-001")
   const [result, setResult] = useState(null)
   const [loading, setLoading] = useState(false)
   const [toast, setToast] = useState(null)
 
-  const client = api(token)
+  const client = api()
 
   const showToast = (msg, type = "ok") => {
     setToast({ msg, type })
@@ -34,13 +34,8 @@ export default function Events({ token }) {
         .ev-root { display: flex; flex-direction: column; gap: 22px; max-width: 680px; }
 
         .ev-card {
-<<<<<<< HEAD
           background: var(--card);
           border: 1px solid var(--border);
-=======
-          background: #0d0d18;
-          border: 1px solid rgba(99,102,241,0.12);
->>>>>>> main
           border-radius: 12px;
           padding: 24px;
           animation: fadeUp 0.3s ease;
@@ -53,11 +48,7 @@ export default function Events({ token }) {
 
         .ev-title {
           font-size: 10px; letter-spacing: 0.2em;
-<<<<<<< HEAD
           color: var(--accent); font-family: 'Space Mono', monospace;
-=======
-          color: #6366f1; font-family: 'Space Mono', monospace;
->>>>>>> main
           margin-bottom: 6px;
         }
 
@@ -69,30 +60,18 @@ export default function Events({ token }) {
         .ev-row { display: flex; gap: 10px; align-items: center; }
 
         .field-input {
-<<<<<<< HEAD
           background: var(--field);
           border: 1px solid var(--border);
           border-radius: 8px;
           padding: 10px 14px;
           color: var(--text);
-=======
-          background: #13131f;
-          border: 1px solid rgba(99,102,241,0.2);
-          border-radius: 8px;
-          padding: 10px 14px;
-          color: #e2e8f0;
->>>>>>> main
           font-family: 'Space Mono', monospace;
           font-size: 12px; outline: none;
           transition: border-color 0.2s;
           flex: 1;
         }
 
-<<<<<<< HEAD
         .field-input:focus { border-color: var(--accent); }
-=======
-        .field-input:focus { border-color: #6366f1; }
->>>>>>> main
 
         .trigger-btn {
           background: linear-gradient(135deg, #f59e0b, #ef4444);
@@ -132,11 +111,7 @@ export default function Events({ token }) {
 
         /* Result */
         .result-card {
-<<<<<<< HEAD
           background: var(--field);
-=======
-          background: #13131f;
->>>>>>> main
           border: 1px solid rgba(245,158,11,0.2);
           border-radius: 10px;
           padding: 18px;
