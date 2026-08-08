@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 {
   "sm-1-mmszmvt4": {
     "id": "sm-1-mmszmvt4",
@@ -5,12 +6,26 @@
     "ip": "127.0.0.1",
     "port": 8080,
     "last_seen": 1773653728
-  },
-  "delhi-001": {
-    "id": "delhi-001",
-    "name": "Delhi",
+  }
+=======
+{
+  "sm-1-mmszmvt4": {
+    "id": "sm-1-mmszmvt4",
+    "name": "sm-1",
     "ip": "127.0.0.1",
     "port": 8080,
+<<<<<<< Updated upstream
+    "last_seen": 1773653728
+=======
     "last_seen": 1774941801
+  },
+  "manglore_1": {
+    "id": "manglore_1",
+    "name": "manglore_machine",
+    "ip": "127.0.0.1",
+    "port": 8080,
+    "last_seen": 1777280058
+>>>>>>> Stashed changes
   }
+>>>>>>> main
 }

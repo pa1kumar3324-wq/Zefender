@@ -1,9 +1,8 @@
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { api } from "../api"
 
 export default function Events() {
-  const [devices, setDevices] = useState([])
-  const [deviceId, setDeviceId] = useState("")
+  const [deviceId, setDeviceId] = useState("machine-bangalore-001")
   const [result, setResult] = useState(null)
   const [loading, setLoading] = useState(false)
   const [toast, setToast] = useState(null)
@@ -14,13 +13,6 @@ export default function Events() {
     setToast({ msg, type })
     setTimeout(() => setToast(null), 3000)
   }
-
-  useEffect(() => {
-    client.getDevices().then(res => {
-      setDevices(res.data)
-      if (res.data.length > 0) setDeviceId(res.data[0].id)
-    }).catch(() => {})
-  }, [])
 
   const handleTrigger = async () => {
     if (!deviceId) return showToast("Enter device ID", "err")
@@ -77,7 +69,6 @@ export default function Events() {
           font-size: 12px; outline: none;
           transition: border-color 0.2s;
           flex: 1;
-          cursor: pointer;
         }
 
         .field-input:focus { border-color: var(--accent); }
@@ -212,16 +203,12 @@ export default function Events() {
           In production, the payment server calls this automatically.
         </p>
         <div className="ev-row">
-          <select
+          <input
             className="field-input"
             value={deviceId}
             onChange={e => setDeviceId(e.target.value)}
-          >
-            {devices.length === 0 && <option value="">No devices registered</option>}
-            {devices.map(d => (
-              <option key={d.id} value={d.id}>{d.name} — {d.id}</option>
-            ))}
-          </select>
+            placeholder="device_id"
+          />
           <button
             className={`trigger-btn ${loading ? "loading" : ""}`}
             onClick={handleTrigger}

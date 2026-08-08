@@ -1,9 +1,8 @@
 import axios from "axios"
 
 const BASE = "/api"
-const DEVICE_SECRET = import.meta.env.VITE_DEVICE_SECRET || "zefender_device_secret_123"
 
-// Always reads the latest token from localStorage — no stale closures
+// Pull JWT from localStorage for every request
 const authHeader = () => {
   const token = localStorage.getItem("zef_token")
   return token ? { Authorization: `Bearer ${token}` } : {}
@@ -15,6 +14,7 @@ export const api = () => {
     login: (data) =>
       axios.post(`${BASE}/auth/login`, data),
 
+    // Superadmin creates an admin account
     registerAdmin: (data) =>
       axios.post(`${BASE}/auth/register`, data, { headers: authHeader() }),
 
@@ -24,9 +24,11 @@ export const api = () => {
     deleteAdmin: (id) =>
       axios.delete(`${BASE}/auth/admins/${id}`, { headers: authHeader() }),
 
+    // Superadmin assigns devices to a specific admin
     assignDevices: (adminId, deviceIds) =>
       axios.put(`${BASE}/auth/admins/${adminId}/devices`, { device_ids: deviceIds }, { headers: authHeader() }),
 
+    // Admin fetches their own assigned devices after login
     getMyDevices: () =>
       axios.get(`${BASE}/auth/me/devices`, { headers: authHeader() }),
 

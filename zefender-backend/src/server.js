@@ -41,7 +41,7 @@ sequelize
   .sync({ alter: true })
   .then(async () => {
     console.log("✅ PostgreSQL connected and models synced");
-    await seedSuperAdmin(); // create superadmin@zefender.com if not exists
+    await seedSuperAdmin();
     app.listen(PORT, () => {
       console.log(`✅ Server running on port ${PORT}`);
     });
